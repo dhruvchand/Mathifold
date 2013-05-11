@@ -1,0 +1,48 @@
+#Map area
+{
+ cursor:pointer;
+}
+#font_color
+{
+ position:absolute;
+ right:15%;
+ display:none;
+ z-index:10;
+ background-color:#FFFFFF;
+ padding:5px;
+ border: 2px solid #747474;
+ box-shadow:2px 2px 2px #333;
+ border-radius:3px;
+}
+button img
+ {
+  vertical-align:middle;
+ }
+#toolbar_button
+    {
+	 height:30px;
+     padding:4px;
+	 margin-bottom:6px;
+     text-decoration: none;
+     color: #363636;
+     font-weight: bold;
+     border: 1px solid #CCCCCC;
+     background-color: #e3e3e3;
+     background-image: -moz-linear-gradient(top,#fff 0%, #F2F3F1 100%);
+     background-image: -webkit-linear-gradient(top,#fff 0%, #F2F3F1 100%);
+     background-image: -o-linear-gradient(top,#fff 0%, #F2F3F1 100%);
+     background-image: linear-gradient(top,#fff 0%, #F2F3F1 100%); 
+     border-radius: 2px;
+     cursor: pointer;
+    }
+
+    #toolbar_button:hover,#toolbar_button:active
+    {
+        background-color: #e3e3e3;
+        text-decoration: none;
+        color: #000;
+        background-image: -moz-linear-gradient(top,#e3e3e3 0%, #fff 100%);
+        background-image: -webkit-linear-gradient(top,#e3e3e3 0%, #fff 100%);
+        background-image: -o-linear-gradient(top,#e3e3e3 0%, #fff 100%);
+        background-image: linear-gradient(top,#e3e3e3 0%, #fff 100%);   
+    }
