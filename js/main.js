@@ -1,6 +1,7 @@
  var sel, range,seltext,node;
 var referenceSelection;
  var modeToggle = 0;
+ var referenceTempArray;
 function body_load()
 {
 	setTimeout("$('#title').animate({fontSize:'32px',marginTop:'0px',opacity:1},1000); $('#wrapper').fadeIn(700);",1000); 
@@ -451,6 +452,7 @@ function newReference()
 {
 	//reference - symbol,style
 		referenceData =  seltext;
+		alert(seltext);
 		var span = document.createElement("span");
 		span.id="reference-"+referenceCount;
 		span.class="reference-placeholder";
@@ -480,16 +482,19 @@ function checkForNewReference(div)
 	//var done = new Array();
 	//var i =0;
 	
+	referenceTempArray = new Array();
 	$("#"+div).find(".mi").each(function(index, element) {
       //if((!isReference($(element).text(),$(element).css('font-weight')))&&done.indexOf($(element).text())== -1 )
 	   if(!isReference($(element).text(),$(element).css('font-weight')) )
 	  {
 		//done[i] = $(element).text();
-		 MathJax.Hub.Queue(referenceAlert(element));
+		referenceTempArray.push(element);
+		
 		//i++;
 	  }
     });
-	
+	alert(referenceTempArray.toString());
+	 referenceAlert(referenceTempArray.pop());
 }
 
 function addAutoReference(element)
@@ -498,6 +503,11 @@ function addAutoReference(element)
 	References[referenceCount] = [$(element).text(), "reference-"+referenceCount,$(element).css('font-weight')];
 referenceCount++;
   alert($(element).closest(".MathJax").attr('id'));
+  
+  var span = document.createElement("span");
+		span.id="reference-"+referenceCount;
+		span.class="reference-placeholder";
+		
   $(element).closest(".MathJax").before(span);
 	
 }
@@ -544,8 +554,8 @@ function postData(path, params) {
 
 function referenceAlert(element)
 {
-	var  size = $(element).css("font-size");
-	$(element).css("font-size",24);
+	var  size = $(element).css("color");
+	$(element).css("color","#FFF");
 	var symbol = $(element).text();
 	//$(element).css('font-weight')
 	d=document.createElement('div');
@@ -553,8 +563,12 @@ $(d).addClass("bottom-alert")
     .html('Would you like this '+symbol+' to be a target of reference of all other '+symbol+' ?<button id="reference-yes" value="Yes">Yes</button><button id="reference-no" value="No">No</button>')
     .appendTo($("body")) //main div
     .click(function(){
-        $(this).remove();
-		$(element).css("font-size",size);
+        var temp;
+	if((temp = referenceTempArray.pop())!=null){
+		$(".bottom-alert").remove();
+	 referenceAlert(temp);
+	}
+		$(element).css("color",size);
     })
     .hide()
     .slideToggle(300)
@@ -562,9 +576,23 @@ $(d).addClass("bottom-alert")
 $("#reference-yes").click(function(e) {
 
     addAutoReference(element);
+	var temp;
+	$(element).css("color",size);
+		$(".bottom-alert").remove();
+	if((temp = referenceTempArray.pop())!=null){
+		
+	 referenceAlert(temp);
+	
+	}
 });
 $("#reference-no").click(function(e) {
-    
+    var temp;
+	$(element).css("color",size);
+		$(".bottom-alert").remove();
+	if((temp = referenceTempArray.pop())!=null){
+		
+	 referenceAlert(temp);
+	}
 });
 
 }
