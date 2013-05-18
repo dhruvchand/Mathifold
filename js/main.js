@@ -12,7 +12,7 @@ function body_load()
 				if(modeToggle == 1)
 				{
 					
-					//setTimeout("rerender()",200);
+					setTimeout("rerender()",2000);
 				}
 				modeToggle = modeToggle==1?0:1;
 			}
@@ -493,7 +493,8 @@ function checkForNewReference(div)
 		//i++;
 	  }
     });
-	alert(referenceTempArray.toString());
+	//alert(referenceTempArray.toString());
+	if(referenceTempArray.length!=0)
 	 referenceAlert(referenceTempArray.pop());
 }
 
@@ -501,7 +502,7 @@ function addAutoReference(element)
 {
 	alert($(element).text() + $(element).css('font-weight'));
 	References[referenceCount] = [$(element).text(), "reference-"+referenceCount,$(element).css('font-weight')];
-referenceCount++;
+
   alert($(element).closest(".MathJax").attr('id'));
   
   var span = document.createElement("span");
@@ -509,7 +510,7 @@ referenceCount++;
 		span.class="reference-placeholder";
 		
   $(element).closest(".MathJax").before(span);
-	
+	referenceCount++;
 }
 
 function getSelectionHtml() {
