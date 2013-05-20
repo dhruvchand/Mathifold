@@ -11,23 +11,25 @@ header('Content-Type: text/html; charset=utf-8');
  
 $equations = json_decode(stripslashes($_POST['Equations']));
 $references = json_decode(stripslashes(unicode_escape_sequences($_POST['References'])));
+$textreferences = json_decode(stripslashes(unicode_escape_sequences($_POST['TextReferences'])));
 $folds = json_decode(stripslashes($_POST['Folds']));
 $equationCount=  json_decode(stripslashes($_POST['EquationCount']));
 $referencecount=  json_decode(stripslashes($_POST['ReferenceCount']));
+$textreferencecount=  json_decode(stripslashes($_POST['TextReferenceCount']));
 $html_code = stripslashes($_POST['HTML']);
 
 $temp=$equations;
 
 
-
+//text reference processing
+for($k=0;$k<$textreferencecount;$k++)
+{
+	echo "reference is".$textreferences[$k][0];
+	$html_code = preg_replace('/'.$textreferences[$k][0].'/', '<span class="text-reference">'.$textreferences[$k][0]."</span>",$html_code);
+}
 
 echo "<br/>";
 
-//REFERENCE PROCESSING
-for($i=0;$i<$referencecount;$i++){	
-	
-	
-}
 
 echo "<html>
 <head>
@@ -218,6 +220,11 @@ echo "var symb".$i." = htmlDecode('".$references[$i][0]."');";
 $p = " $('.mi:contains('+symb".$i."+')').attr('title','".$references[$i][1]."');";
 echo $p;
 }
+for($i=0;$i<$textreferencecount;$i++){	
+echo "var tsymb".$i." = htmlDecode('".$textreferences[$i][0]."');";
+$p = " $('.text-reference:contains('+tsymb".$i."+')').attr('title','".$textreferences[$i][1]."');";
+echo $p;
+}
 echo "
 
 
@@ -225,7 +232,16 @@ $('.mi').click ( function() {
     if($(this).attr ( 'title' )!=='')
 	{
 		$( '#reference-container' ).dialog('open');
-		alert($(this).attr ( 'title' ));
+		//alert($(this).attr ( 'title' ));
+		$('#reference-container').scrollTo('#'+$(this).attr ( 'title' )); 
+	}
+});
+
+$('.text-reference').click ( function() {
+    if($(this).attr ( 'title' )!=='')
+	{
+		$( '#reference-container' ).dialog('open');
+		//alert($(this).attr ( 'title' ));
 		$('#reference-container').scrollTo('#'+$(this).attr ( 'title' )); 
 	}
 });
