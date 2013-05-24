@@ -21,15 +21,12 @@ $html_code = stripslashes($_POST['HTML']);
 $temp=$equations;
 
 
-//text reference processing
+//text reference processing [global]
 for($k=0;$k<$textreferencecount;$k++)
 {
 	echo "reference is".$textreferences[$k][0];
 	$html_code = preg_replace('/'.$textreferences[$k][0].'/', '<span class="text-reference">'.$textreferences[$k][0]."</span>",$html_code);
 }
-
-echo "<br/>";
-
 
 echo "<html>
 <head>
@@ -41,22 +38,18 @@ echo "<html>
 <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/1.4.3/jquery.scrollTo.min.js'></script>
 
 <style type='text/css'>
-
-
-
 </style>
+
 <script type='text/javascript'>
 function htmlDecode(input){
   var e = document.createElement('div');
   e.innerHTML = input;
   return e.childNodes[0].nodeValue;
 }
-  function init()
-  {
-	  
-	  
-	  var newIframe = document.getElementById('reference-container');
-	 
+
+function init()
+{	  
+	  var newIframe = document.getElementById('reference-container');	 
 	  var content = '<!DOCTYPE html><html><head> </head>'
     + '<body>'+ document.getElementById('mathifold-container').innerHTML   +'</body></html>';
 
@@ -75,8 +68,8 @@ newIframe.contentWindow.document.close();
 
 	  reference();
 	  start();
-  }
-  </script>";
+}
+</script>";
 
 
 
@@ -195,9 +188,7 @@ function show(btnid)
 
 
 
-echo "</head><body><div id='mathifold-container'>
-
-";
+echo "</head><body><div id='mathifold-container'>";
 
 echo $html_code;
 

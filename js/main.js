@@ -1,18 +1,20 @@
  var sel, range, seltext, node;
  var referenceSelection;
- var modeToggle = 0;
+var querystring 
  var referenceTempArray;
 
  function body_load() {
      setTimeout("$('#title').animate({fontSize:'32px',marginTop:'0px',opacity:1},1000); $('#wrapper').fadeIn(700);", 1000);
      $("#editor").keydown(function (e) {
+         
 
          if (e.which == 192) {
-             if (modeToggle == 1) {
-
+             
+             if ($('#editor').html().match(new RegExp("`", "gi")).length%2!=0) {
+               
                  setTimeout("rerender()", 2000);
              }
-             modeToggle = modeToggle == 1 ? 0 : 1;
+            
          }
      });
  }
@@ -69,7 +71,7 @@
  function rerender() {
      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
      //MathJax.Hub.Queue(resetCursor);
-     alert($("#editor .MathJax").last().attr("id"));
+    // alert($("#editor .MathJax").last().attr("id"));
      checkForNewReference($("#editor .MathJax").last().attr("id"));
 
  }
@@ -257,26 +259,10 @@ function getSelectionHtml() {
 
  }
 
-function postData(path, params) {
-     method = "post";
-     var form = document.createElement("form");
-     form.setAttribute("method", method);
-     form.setAttribute("action", path);
 
-     for (var key in params) {
-         if (params.hasOwnProperty(key)) {
-             var hiddenField = document.createElement("input");
-             hiddenField.setAttribute("type", "hidden");
-             hiddenField.setAttribute("name", key);
-             hiddenField.setAttribute("value", params[key]);
+//////////////////////////////////////////Save and Export Logic//////////
 
-             form.appendChild(hiddenField);
-         }
-     }
 
-     document.body.appendChild(form);
-     form.submit();
- }
 
  function Export() {
 
@@ -354,6 +340,35 @@ function postData(path, params) {
 
      postData("./process.php", dataObj);
 
+ }
+
+function Save()
+{
+    
+    
+}
+
+
+
+function postData(path, params) {
+     method = "post";
+     var form = document.createElement("form");
+     form.setAttribute("method", method);
+     form.setAttribute("action", path);
+
+     for (var key in params) {
+         if (params.hasOwnProperty(key)) {
+             var hiddenField = document.createElement("input");
+             hiddenField.setAttribute("type", "hidden");
+             hiddenField.setAttribute("name", key);
+             hiddenField.setAttribute("value", params[key]);
+
+             form.appendChild(hiddenField);
+         }
+     }
+
+     document.body.appendChild(form);
+     form.submit();
  }
 
  ////////////////////Folding part starts////////////////////////////////////////////////////////////////////////////////////////
@@ -586,3 +601,76 @@ function postData(path, params) {
  }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+function test()
+{
+	$("#preview").text($.selection())
+	
+	//alert(toUnicodeQuery($.selection()));
+	
+	//determine smallest bounding node
+	var node;
+	//query construction
+	 querystring = getQuery($.selection());
+		
+	if($(".mi"+querystring).attr("id")!=null)
+	{
+		node=$(".mi"+querystring);
+	}
+	else if($(".mo"+querystring).attr("id")!=null)
+	{
+		node=$(".mo"+querystring);
+	}
+	else if($(".msub"+querystring).attr("id")!=null)
+	{
+		node=$(".msub"+querystring);
+	}
+	else if($(".msup"+querystring).attr("id")!=null)
+	{
+		node=$(".msup"+querystring);
+	}
+	else if($(".msubsup"+querystring).attr("id")!=null)
+	{
+		node=$(".msubsup"+querystring);
+	}
+	else if($(".mover"+querystring).attr("id")!=null)
+	{
+		node=$(".mover"+querystring);
+	}
+	
+	alert('selected node id'  + node.attr('class'));
+		
+}
+
+function toUnicode(theString) {
+  var unicodeString = '';
+  for (var i=0; i < theString.length; i++) {
+    var theUnicode = theString.charCodeAt(i).toString(16).toUpperCase();
+    while (theUnicode.length < 4) {	
+      theUnicode = '0' + theUnicode;
+    }
+    theUnicode = '\\u' + theUnicode;
+      if(theUnicode!="\\u0020")
+    unicodeString += theUnicode;
+  }
+  return unicodeString;
+}
+
+function getQuery(theString)
+{
+	
+	  var unicodeString = '';
+  for (var i=0; i < theString.length; i++) {
+    var theUnicode = theString.charCodeAt(i).toString(16)	.toUpperCase();
+ 
+	if(theString.charAt(i)!=" " && theString.charAt(i)!="" ){
+		
+		
+    theUnicode = ":contains(" +  theString.charAt(i) + ")";     
+    unicodeString += theUnicode;
+	}
+  }
+  return unicodeString;
+	
+}
