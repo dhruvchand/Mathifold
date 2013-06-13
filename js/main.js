@@ -8,7 +8,7 @@ var querystring
      $("#editor").keydown(function (e) {
          
 
-         if (e.which == 192) {
+         if (e.which == 192&&$('#editor').html().match(new RegExp("`", "gi"))!=null) {
              
              if ($('#editor').html().match(new RegExp("`", "gi")).length%2!=0) {
                
@@ -115,15 +115,15 @@ var querystring
 
 ///////////////////////Referencing Logic////////////////////////////
 
-
- function newReference() {
-     //reference - symbol,style
+//Obsolete, replaced with new fn haandling compound vars
+ function newReferenceObsolete() {
+     //reference - symbol,[style NOT IMPLEMENTED]
      referenceData = seltext;
     // alert(seltext);
      var span = document.createElement("span");
      span.id = "reference-" + referenceCount;
      span.class = "reference-placeholder";
-     References[referenceCount] = [referenceData, "reference-" + referenceCount, $(node).closest(".mi").css('font-weight')];
+     References[referenceCount] = [referenceData, "reference-" + referenceCount,null];
      referenceCount++;
      alert($(node).closest(".MathJax").attr('id'));
      $(node).closest(".MathJax").before(span);
@@ -159,10 +159,15 @@ var span = document.createElement("span");
      return false;
  }
 
+
 function checkForNewReference(div) {
 	  //var done = new Array();
      //var i =0;
      referenceTempArray = new Array();
+    //Clear existing reference temp array and destroy any open alerts
+    
+    
+    //get list of mitems added
      $("#" + div).find(".mi").each(function (index, element) {
          //if((!isReference($(element).text(),$(element).css('font-weight')))&&done.indexOf($(element).text())== -1 )
          if (!isReference($(element).text(), $(element).css('font-weight'))) {
@@ -178,8 +183,8 @@ function checkForNewReference(div) {
 
  
 function addAutoReference(element) {
-     alert($(element).text() + $(element).css('font-weight'));
-     References[referenceCount] = [$(element).text(), "reference-" + referenceCount, $(element).css('font-weight')];
+     alert($(element).text());
+     References[referenceCount] = [$(element).text(), "reference-" + referenceCount,".mi:contains("+$(element).text()+")"];
 
      alert($(element).closest(".MathJax").attr('id'));
 
@@ -190,6 +195,67 @@ function addAutoReference(element) {
      $(element).closest(".MathJax").before(span);
      referenceCount++;
  }
+ 
+
+//New General function for compound and simple vars
+ function newReference()
+{
+	$("#preview").text($.selection())
+	
+	//determine smallest bounding node
+	var node;
+	//query construction
+	 querystring = getQuery($.selection());	 
+	 altq= querystring;
+ //   alert(($($.selection('html'))[0]).attr('id') );
+ //  var parentid = "#"+$(".math",$.selection('html')).attr('id')+" ";
+   var parentid = "#" + $($.selection('html')).find('.mrow')[0].id+" ";
+    alert(parentid + ".mi"+querystring);
+	if($(parentid + ".mi"+querystring).attr("id")!=null)
+	{
+		node=$(parentid + ".mi"+querystring);
+		querystring = ".mi"+querystring;
+	}
+	else if($(parentid + ".mo"+querystring).attr("id")!=null)
+	{
+		node=$(parentid + ".mo"+querystring);
+		querystring = ".mo"+querystring;
+	}
+	else if($(parentid + ".msub"+querystring).attr("id")!=null)
+	{
+		node=$(parentid + ".msub"+querystring);
+		querystring = ".msub"+querystring;
+	}
+	else if($(parentid + ".msup"+querystring).attr("id")!=null)
+	{
+		node=$(parentid + ".msup"+querystring);
+		querystring = ".msup"+querystring;
+	}
+	else if($(parentid + ".msubsup"+querystring).attr("id")!=null)
+	{
+		node=$(parentid + ".msubsup"+querystring);
+		querystring = ".msubsup"+querystring;
+	}
+	else if($(parentid + ".mover"+querystring).attr("id")!=null)
+	{
+		node=$(parentid + ".mover"+querystring);
+		querystring = ".mover"+querystring;
+	}
+	
+	alert('selected node id'  + node.attr('id'));
+	
+	//Add reference to References array and create placeholder
+	
+	 var span = document.createElement("span");
+     span.id = "reference-" + referenceCount;
+     span.class = "reference-placeholder";
+     References[referenceCount] = [$.selection(), "reference-" + referenceCount,querystring];
+     referenceCount++;
+     alert(node.closest(".MathJax").attr('id'));
+     node.closest(".MathJax").before(span);
+		alert($.selection()+ "reference-" + referenceCount+	querystring);
+}
+
 
  function referenceAlert(element) {
      var size = $(element).css("color");
@@ -200,13 +266,17 @@ function addAutoReference(element) {
      $(d).addClass("bottom-alert")
          .html('Would you like this ' + symbol + ' to be a target of reference of all other ' + symbol + ' ?<button id="reference-yes" value="Yes">Yes</button><button id="reference-no" value="No">No</button>')
          .appendTo($("body")) //main div
-     .click(function () {
+         .click(function () {
          var temp;
-         if ((temp = referenceTempArray.pop()) != null) {
-             $(".bottom-alert").remove();
+         $(element).css("color", size);
+         $(".bottom-alert").remove();
+         while (((temp = referenceTempArray.pop()) != null) && isReference($(temp).text(), $(temp).css('font-weight'))) {
+
+         }
+         if (temp != null) {
+
              referenceAlert(temp);
          }
-         $(element).css("color", size);
      })
          .hide()
          .slideToggle(300);
@@ -344,7 +414,19 @@ function getSelectionHtml() {
 
 function Save()
 {
-    
+      var html = document.getElementById('editor').innerHTML;
+      dataObj = {
+
+         "Equations": JSON.stringify(Equations),
+         "References": JSON.stringify(References),
+         "Folds": JSON.stringify(Folds),
+         "HTML": html,
+         "EquationCount": globalEquationCount,
+         "ReferenceCount": referenceCount,
+		 "TextReferenceCount": TextreferenceCount,
+		 "TextReferences": JSON.stringify(TextReferences),
+        "subEquationCount":subEquationCount
+     };
     
 }
 
@@ -567,7 +649,7 @@ function postData(path, params) {
 
 
 
- //////////////////////////////Folding part ends/////
+ //////////////////////////////Folding part ends//////////////////////////////////////////////////////////
  
  
  
@@ -603,45 +685,6 @@ function postData(path, params) {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-function test()
-{
-	$("#preview").text($.selection())
-	
-	//alert(toUnicodeQuery($.selection()));
-	
-	//determine smallest bounding node
-	var node;
-	//query construction
-	 querystring = getQuery($.selection());
-		
-	if($(".mi"+querystring).attr("id")!=null)
-	{
-		node=$(".mi"+querystring);
-	}
-	else if($(".mo"+querystring).attr("id")!=null)
-	{
-		node=$(".mo"+querystring);
-	}
-	else if($(".msub"+querystring).attr("id")!=null)
-	{
-		node=$(".msub"+querystring);
-	}
-	else if($(".msup"+querystring).attr("id")!=null)
-	{
-		node=$(".msup"+querystring);
-	}
-	else if($(".msubsup"+querystring).attr("id")!=null)
-	{
-		node=$(".msubsup"+querystring);
-	}
-	else if($(".mover"+querystring).attr("id")!=null)
-	{
-		node=$(".mover"+querystring);
-	}
-	
-	alert('selected node id'  + node.attr('class'));
-		
-}
 
 function toUnicode(theString) {
   var unicodeString = '';
@@ -664,13 +707,14 @@ function getQuery(theString)
   for (var i=0; i < theString.length; i++) {
     var theUnicode = theString.charCodeAt(i).toString(16)	.toUpperCase();
  
-	if(theString.charAt(i)!=" " && theString.charAt(i)!="" ){
+	if(theString.charAt(i)!=" " && theString.charAt(i)!="" && theString.charAt(i)!="\n" && theString.charAt(i)!=undefined){
 		
 		
     theUnicode = ":contains(" +  theString.charAt(i) + ")";     
     unicodeString += theUnicode;
 	}
   }
-  return unicodeString;
+  return unicodeString.replace(":contains(\r)","").replace(":contains(&nbsp;)","")	;
 	
 }
+

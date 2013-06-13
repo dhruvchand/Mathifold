@@ -21,6 +21,17 @@ $html_code = stripslashes($_POST['HTML']);
 $temp=$equations;
 
 
+//Debug
+echo implode("-",$equations);
+echo  $references[0][0];
+echo implode("-",$textreferences ) ;
+echo implode("-",$folds) ;
+echo $equationCount;
+echo $referencecount;
+echo $textreferencecount;
+
+
+
 //text reference processing [global]
 for($k=0;$k<$textreferencecount;$k++)
 {
@@ -31,13 +42,25 @@ for($k=0;$k<$textreferencecount;$k++)
 echo "<html>
 <head>
 <title>Mathifold Document</title>
+
+<link rel='stylesheet' href='js/jquery-ui/themes/base/jquery-ui.css' />
+<script src='js/jquery-1.8.3.min.js'></script>
+<script src='js/jquery-ui/ui/jquery-ui.js'></script>
+<script type='text/javascript' src='mathjax/MathJax.js?config=AM_HTMLorMML'></script>
+<script src='js/jquery.scrollTo.min.js'></script>
+<!--
 <link rel='stylesheet' href='http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css' />
 <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
 <script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js'></script>
 <script type='text/javascript' src='http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML'></script>
 <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/1.4.3/jquery.scrollTo.min.js'></script>
+-->
 
 <style type='text/css'>
+.reference:hover
+{
+background-color:red;
+}
 </style>
 
 <script type='text/javascript'>
@@ -207,23 +230,29 @@ function reference(){
 	";
 	
 for($i=0;$i<$referencecount;$i++){	
-echo "var symb".$i." = htmlDecode('".$references[$i][0]."');";
-$p = " $('.mi:contains('+symb".$i."+')').attr('title','".$references[$i][1]."');";
+//echo "var symb".$i." = htmlDecode('".$references[$i][0]."');";
+$p = " $(htmlDecode('".$references[$i][2]."')).attr('title','".$references[$i][1]."');";
 echo $p;
 }
+
+
 for($i=0;$i<$textreferencecount;$i++){	
 echo "var tsymb".$i." = htmlDecode('".$textreferences[$i][0]."');";
 $p = " $('.text-reference:contains('+tsymb".$i."+')').attr('title','".$textreferences[$i][1]."');";
 echo $p;
+    
 }
 echo "
 
 
-$('.mi').click ( function() {
-    if($(this).attr ( 'title' )!=='')
+$('.mi, .mo, .msub, .msubsup, .mover, .msup').click ( function(event) {
+      //Test this
+
+    if($(this).attr ( 'title' )!==undefined)
 	{
+        event.stopPropagation();
 		$( '#reference-container' ).dialog('open');
-		//alert($(this).attr ( 'title' ));
+		alert($(this).attr ( 'title' ));
 		$('#reference-container').scrollTo('#'+$(this).attr ( 'title' )); 
 	}
 });
@@ -254,3 +283,4 @@ echo "</html>";
 
 
 ?>
+
