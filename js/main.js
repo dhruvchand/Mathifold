@@ -209,8 +209,9 @@ function addAutoReference(element) {
 	 altq= querystring;
  //   alert(($($.selection('html'))[0]).attr('id') );
  //  var parentid = "#"+$(".math",$.selection('html')).attr('id')+" ";
-   var parentid = "#" + $($.selection('html')).find('.mrow')[0].id+" ";
+   var parentid = "#" + $(getSelectionParentElement()).parents('.math').attr('id')+" ";
     alert(parentid + ".mi"+querystring);
+    
 	if($(parentid + ".mi"+querystring).attr("id")!=null)
 	{
 		node=$(parentid + ".mi"+querystring);
@@ -328,6 +329,22 @@ function getSelectionHtml() {
 
 
  }
+
+function getSelectionParentElement() {
+    var parentEl = null;
+    if (window.getSelection) {
+        var sel = window.getSelection();
+        if (sel.rangeCount) {
+            parentEl = sel.getRangeAt(0).commonAncestorContainer;
+            if (parentEl.nodeType != 1) {
+                parentEl = parentEl.parentNode;
+            }
+        }
+    } else if (document.selection && document.selection.type != "Control") {
+        parentEl = document.selection.createRange().parentElement();
+    }
+    return parentEl;
+}
 
 
 //////////////////////////////////////////Save and Export Logic//////////
