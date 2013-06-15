@@ -150,9 +150,9 @@ var span = document.createElement("span");
  
  }
 
- function isReference(symbol, style) {
+ function isReference(symbol) {
      for (var i = 0; i < referenceCount; i++) {
-         if (References[i][0] == symbol && References[i][2] == style) {
+         if (References[i][0] == symbol) {
              return true;
          }
      }
@@ -170,7 +170,7 @@ function checkForNewReference(div) {
     //get list of mitems added
      $("#" + div).find(".mi").each(function (index, element) {
          //if((!isReference($(element).text(),$(element).css('font-weight')))&&done.indexOf($(element).text())== -1 )
-         if (!isReference($(element).text(), $(element).css('font-weight'))) {
+         if (!isReference($(element).text())) {
              //done[i] = $(element).text();
              referenceTempArray.push(element);
              //i++;
