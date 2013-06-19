@@ -29,15 +29,19 @@ var querystring
          Equations[globalEquationCount - 1] = new Array();
          $('#equation-container').fadeIn(1000);
          $('#overlay').fadeIn(1300);
+        // var div = document.createElement("div");
+        // div.id = 'equation-' + globalEquationCount + "-lhs";
+        // div.className = 'lhs';
+        // document.getElementById("equation-preview").appendChild(div);
          var div = document.createElement("div");
-         div.id = 'equation-' + globalEquationCount + "-lhs";
-         div.className = 'lhs';
-         document.getElementById("equation-preview").appendChild(div);
+     div.id = 'equation-' + globalEquationCount + "-" + subEquationCount;
+     div.className = "equation-step";
+     document.getElementById("equation-preview").appendChild(div);
 	     alert('equation-' + globalEquationCount + "-" + subEquationCount);
          //	var div = document.createElement("div");
          //div.id = 'mod-'+globalEquationCount+"-"+subEquationCount;
          //div.innerHTML="<img class='up-down'  src='img/up.png'  onclick='stepUp("+subEquationCount+");'></img> <img class='up-down'  src='img/down.png'  onclick='stepDown("+subEquationCount+");'></img>";
-         document.getElementById("equation-preview").appendChild(div);
+         
      }
  }
 
@@ -45,9 +49,14 @@ var querystring
      if (subEquationCount == 0) {
          $('#lhs').hide();
          $("#non-lhs").show();
+          Equations[globalEquationCount - 1][subEquationCount] = document.getElementById('inputbox-lhs').value;
      }
+     else
+     {
      //Store in Eqn DB
      Equations[globalEquationCount - 1][subEquationCount] = document.getElementById('inputbox').value;
+         alert(Equations[globalEquationCount - 1][subEquationCount]);
+     }
      //Housekeeping
      document.getElementById('inputbox').value = "";
      subEquationCount++;
@@ -77,7 +86,8 @@ var querystring
  }
 
  function updatelhs() {
-     document.getElementById('equation-' + globalEquationCount + "-lhs").innerHTML = "`" + document.getElementById('inputbox-lhs').value + "`";
+      document.getElementById('equation-' + globalEquationCount + "-" + subEquationCount).innerHTML = "`" + document.getElementById('inputbox-lhs').value + "`";
+    // document.getElementById('equation-' + globalEquationCount + "-lhs").innerHTML = "`" + document.getElementById('inputbox-lhs').value + "`";
      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
  }
 
@@ -265,7 +275,7 @@ function addAutoReference(element) {
      //$(element).css('font-weight')
      d = document.createElement('div');
      $(d).addClass("bottom-alert")
-         .html('Would you like this ' + symbol + ' to be a target of reference of all other ' + symbol + ' ?<button id="reference-yes" value="Yes">Yes</button><button id="reference-no" value="No">No</button>')
+         .html('Should this ' + symbol + '  be a reference target for all other ' + symbol + ' ?<button id="reference-yes" value="Yes">Yes</button><button id="reference-no" value="No">No</button>')
          .appendTo($("body")) //main div
          .click(function () {
          var temp;
