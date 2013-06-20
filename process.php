@@ -61,6 +61,16 @@ echo "<html>
 {
 background-color:red;
 }
+
+.lhs
+{
+	display:inline-block;
+}
+.rhs
+{
+	display:inline-block;
+	vertical-align:top;
+}
 </style>
 
 <script type='text/javascript'>
@@ -90,128 +100,37 @@ newIframe.contentWindow.document.close();
 	MathJax.Hub.Queue(['Typeset',MathJax.Hub]);MathJax.Hub.Queue(reference);
 
 	  reference();
-	  start();
+	 
+	
+}
+
+function initFolding()
+{
+
+ $('.buttonup,.buttondown').show();
+  $('.up,.down').hide();
+ $('.buttonup').click(function(e)
+	   {
+		  $(this).parent().children('.up').show();
+	   });
+	   $('.buttondown').click(function(e)
+	   {
+		  $(this).parent().children('.down').show();
+	   });
 }
 </script>";
 
 
 
-echo '<script type="text/javascript">
+echo "<script type='text/javascript'>
 
-var folds=new Array();
-var equations=new Array();
-var n;
-var eqnNumber;
-var stepNumber;
-var ftree;
-
-var tree;
-
-function start()
-{
- var index;
- var stepIndex; '; 
-
- echo 'folds='.json_encode($folds).';';
  
-   for($pindex=0;$pindex<$equationCount;$pindex++)
-  {
-   echo 'index="'.$pindex.'";';
-   echo 'equations[index]=new Array();';
-   echo 'equations[index] = '.json_encode($temp[$pindex]).' ; ';
-      
-   }
 
-echo '}
-window.onload=init;
-
-function charToNum()
-{
- var index;
- tree[0]=-2;
- for(index=0;index<ftree.length;index++)
- {
-  tree[index+1]=ftree[index].charCodeAt(0)-66;
- }
-}
-
-function splitButtonId(str)
-{
- var str1=str.split("-");
- eqnNumber=str1[1];
- stepNumber=str1[2];
-}
-
-function combineEqnId(tempId)
-{
- tempId+=2;
- var str2="equation-"+eqnNumber+"-"+tempId;
- return str2;
-}
-
-function updateButtons()
-{
- var index;
- for(index=1;index<=n;index++)
-  if(document.getElementById(combineEqnId(index-1)).style.display=="block")
-   document.getElementById(combineEqnId(index)).getElementsByTagName("button")[0].disabled="true";
-}
- 
-function findPosition(v)
-{
- var index;
- for(index=1;index<=tree.length;index++)
-  if(tree[index]==v)
-   break;
- return index; 
-}
-
-
-function show(btnid)
-{
- splitButtonId(btnid);
-
- ftree=folds[eqnNumber-1];
- tree=new Array(ftree.length+1);
- 
- charToNum();
- 
- n=equations[eqnNumber-1].length-1;
- //alert(n);
-
- var pos;
- var temp;
- var v;
- 
- v=stepNumber-2;
-
- if(v==n)
-  pos=1/2;
- else
-  pos=findPosition(v);
-  //alert(pos);
-  //alert(combineEqnId(tree[2*pos]));
- if(document.getElementById(combineEqnId(tree[2*pos])).style.display=="block")
- {
-  temp=2*(2*pos)+1;
-  while(document.getElementById(combineEqnId(tree[temp])).style.display=="block")
-  {
-   temp=2*temp+1;
-  }
-  document.getElementById(combineEqnId(tree[temp])).style.display="block";
- }
- else
-  document.getElementById(combineEqnId(tree[2*pos])).style.display="block";
-
- updateButtons();
-}
-
-
-</script>';
+</script>";
 
 
 
-echo "</head><body><div id='mathifold-container'>";
+echo "</head><body onload='initFolding()'><div id='mathifold-container'>";
 
 echo $html_code;
 

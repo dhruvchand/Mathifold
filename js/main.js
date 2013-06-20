@@ -111,7 +111,7 @@ var querystring
  function appendEquation() {
      Equations[globalEquationCount - 1][subEquationCount] = document.getElementById('inputbox').value;
 
-     document.getElementById('editor').innerHTML = document.getElementById('editor').innerHTML + "<div class='equation'  style='position:inline;height:auto;' id='" + globalEquationCount + "' > " + " " + document.getElementById('equation-preview').innerHTML + "</div><br/>";
+     document.getElementById('editor').innerHTML = document.getElementById('editor').innerHTML + "<div class='equation'  style='position:inline;height:auto;' id='equation-" + globalEquationCount + "' > " + " " + document.getElementById('equation-preview').innerHTML + "</div><br/>";
      $('#equation-container').fadeOut(1000);
      $('#overlay').fadeOut(1300);
      document.execCommand("enableObjectResizing", false, false);
@@ -178,7 +178,7 @@ function checkForNewReference(div) {
     
     
     //get list of mitems added
-     $("#" + div).find(".mi").each(function (index, element) {
+     $("#equation-" + div).find(".mi").each(function (index, element) {
          //if((!isReference($(element).text(),$(element).css('font-weight')))&&done.indexOf($(element).text())== -1 )
          if (!isReference($(element).text())) {
              //done[i] = $(element).text();
@@ -364,61 +364,7 @@ function getSelectionParentElement() {
  function Export() {
 
 
-     /*
-	var w=window.open();
-    w.document.open();
-	 w.document.write('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Untitled Document</title></head><body>');
-    w.document.write(document.getElementById('editor').innerHTML);
-	w.document.write('</body></html>');
-    w.document.close();
-	*/
-
-     ///////adding buttons//
-     for (var i = 1; i <= globalEquationCount; i++) {
-         for (j = 2; j <= Equations[i - 1].length; j++) {
-             if (typeof Folds[i - 1] != 'undefined') {
-                 var button = document.createElement("button");
-
-                 /*button.addEventListener('click', function() { 
-          alert('OnClick');                                // not working
-          }, false);*/
-
-                 /*button.onclick = function(){
-          alert('here be dragons');return false;            // not working
-          };*/
-
-                 if (j == 2)
-                     button.setAttribute('disabled', 'disabled');
-
-                 button.setAttribute('onclick', 'show(this.id);');
-
-                 button.id = 'button-' + i + "-" + j;
-                 button.innerHTML = '>';
-
-                 document.getElementById('equation-' + i + "-" + j).appendChild(button);
-                 document.getElementById('equation-' + i + "-" + j).style.display = 'none';
-             }
-         }
-
-         if (typeof Folds[i - 1] != 'undefined') {
-             var finalStep = document.createElement("div");
-             finalStep.id = 'equation-' + i + "-" + j;
-             finalStep.innerHTML = 'Final Step';
-
-             document.getElementById(i).appendChild(finalStep);
-
-             var button = document.createElement("button");
-
-             button.setAttribute('onclick', 'show(this.id);');
-
-             button.id = 'button-' + i + "-" + j;
-             button.innerHTML = '>';
-
-             document.getElementById('equation-' + i + "-" + j).appendChild(button);
-         }
-
-     }
-
+   
      /////
 
      var html = document.getElementById('editor').innerHTML;
@@ -482,198 +428,82 @@ function postData(path, params) {
 
  ////////////////////Folding part starts////////////////////////////////////////////////////////////////////////////////////////
 
- ////code to generate tree
+ 
 
- var n; // no. of intermediate steps
- var level = 0; // level of the tree
- var treeSize;
- var treeIndex = 1;
- var totalLists = 1;
- var foldIndex;
- var isSelected = new Array(n);
- var tree = new Array(treeSize);
- var color = new Array('red', 'blue', 'green', 'yellow', 'pink', 'brown');
- var eqnNumber;
-
- function combineSpanId(tempId) {
-     var str2 = eqnNumber + "-" + tempId;
-     return str2;
- }
-
- function allSelected() {
-     var index;
-     var flag = 1;
-     for (index = 0; index < n; index++)
-         if (!isSelected[index]) {
-             flag = 0;
-             break;
-         }
-     return flag;
- }
-
-
- function colorUpdate() {
-     var index;
-     for (index = 0; index < n; index++) {
-         var tempObj1 = document.getElementById(combineSpanId(index)).getElementsByTagName('input');
-         if (tempObj1.length) {
-             document.getElementById(combineSpanId(index)).style.backgroundColor = color[tempObj1[0].name];
-         }
-     }
-
- }
-
-
- function foldUpdate() {
-     var index;
-     var flag = 0;
-     var temp;
-     var nameIndex = 0;
-
-     if (!allSelected()) {
-         document.getElementById('msg').innerHTML = 'Select Foldpoints for level ' + (level + 1) + '. Select one from each coloured partition from <font style="text-decoration:underline">top to bottom</font>';
-         for (index = 0; index < n; index++) {
-             if (isSelected[index]) {
-                 document.getElementById(combineSpanId(index)).innerHTML = '';
-                 if ((index != 0) && (index != n - 1) && (!isSelected[index + 1])) {
-                     for (temp = index - 1; temp >= 0; temp--)
-                         if (!isSelected[temp]) {
-                             flag = 1;
-                             break;
-                         }
-                     if (flag)
-                         nameIndex++;
-                 }
-                 continue;
-             }
-             document.getElementById(combineSpanId(index)).innerHTML = '<input type="radio" name="' + nameIndex + '" value="' + nameIndex + '" onclick="selected(this.value);" />'
-         }
-         totalLists = nameIndex + 1;
-     } else {
-         var final = '';
-         for (i = 1; tree[i] > -2; i++)
-             final += (String.fromCharCode(tree[i] + 66));
-         alert('Tree: ' + final + '\n' + 'size:' + i + '\n' + 'A=non-existent node');
-
-         Folds[foldIndex] = final;
-
-         $('#folding-container').fadeOut(500);
-         appendEquation();
-     }
-     colorUpdate();
- }
-
-
- function selected(nIndex) {
-     var index;
-     var temp;
-     for (index = 0; index < n; index++) {
-         var tempObj = document.getElementById(combineSpanId(index)).getElementsByTagName('input');
-         if (tempObj.length) {
-             if (tempObj[0].name == nIndex) {
-                 if (tempObj[0].checked) {
-                     temp = index;
-                 } else {
-                     tempObj[0].disabled = 'true';
-                 }
-             }
-         }
-     }
-     index = temp;
-     isSelected[index] = 1;
-     if (allSelected())
-         totalLists = 1;
-     totalLists--;
-
-     if (level == 0) {
-         tree[treeIndex] = index;
-         temp = treeIndex;
-     } else {
-         if (tree[2 * treeIndex] < -1) {
-             tree[2 * treeIndex] = index;
-             temp = 2 * treeIndex;
-         } else if (tree[2 * treeIndex + 1] < -1) {
-             tree[2 * treeIndex + 1] = index;
-             temp = 2 * treeIndex + 1;
-         }
-     }
-
-     while (((tree[2 * treeIndex] >= -1) && (tree[2 * treeIndex + 1] >= -1)) || (tree[treeIndex] == -1)) {
-         if (tree[treeIndex] == -1) {
-             tree[2 * treeIndex] = -1;
-             tree[2 * treeIndex + 1] = -1;
-         }
-         treeIndex++;
-     }
-
-     if (index == 0)
-         tree[2 * temp] = -1;
-     if (index == n - 1)
-         tree[2 * temp + 1] = -1;
-     if ((index != 0) && (isSelected[index - 1]))
-         tree[2 * temp] = -1;
-     if ((index != n - 1) && (isSelected[index + 1]))
-         tree[2 * temp + 1] = -1;
-
-     if (totalLists < 1) {
-         level++;
-         foldUpdate();
-     }
-
- }
-
- ////code to generate tree ends
 
  function foldEquation() {
-     Equations[globalEquationCount - 1][subEquationCount - 1] = document.getElementById('inputbox').value;
+	
+     Equations[globalEquationCount - 1][subEquationCount] = document.getElementById('inputbox').value;
      $('#equation-container').fadeOut(500);
      $('#folding-container').fadeIn(500);
      //Use Equations[globalEquationCount-1] array to get the set of steps to fold, store appropriately in a 2d array called Folds, which i will post to php with the other arrays
-
-     var index;
-     level = 0;
-     treeIndex = 1;
-     totalLists = 1;
-     eqnNumber = globalEquationCount - 1;
-
-
-     var parent = document.createElement("div");
-     var msgdiv = document.createElement("div");
-     msgdiv.id = "msg";
-     parent.appendChild(msgdiv);
-
-     n = (Equations[globalEquationCount - 1].length) - 1;
-     //alert(n);
-     treeSize = Math.pow(2, n);
-     foldIndex = globalEquationCount - 1;
-
-     for (var i = 0; i < Equations[globalEquationCount - 1].length; i++) {
-         var div = document.createElement("div");
-         if (i == 0)
-             div.innerHTML = "`" + Equations[globalEquationCount - 1][i] + "`";
-         else
-             div.innerHTML = "`" + Equations[globalEquationCount - 1][i] + "`" + "<span class='steps' id='" + (globalEquationCount - 1) + "-" + (i - 1) + "'>asad</span>";
-         parent.appendChild(div);
-     }
-     var finalStep = document.createElement("div");
-     finalStep.innerHTML = "Final Step";
-     parent.appendChild(finalStep);
-
-
-     $('#folding-equation-container').html(parent);
+	 
+	 	 var d = document.createElement('div');
+		d.innerHTML = "`"+ Equations[globalEquationCount - 1][0] + "`";
+		 d.id='equation-' + globalEquationCount + "-0";
+		d.className='lhs';
+   $('#folding-equation-container').append(d);
+     d =  chooseFold(1,subEquationCount,"first",globalEquationCount - 1);
+     d.className="rhs";
+	 $('#folding-equation-container').append(d);
      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-
-     for (index = 0; index < n; index++)
-         isSelected[index] = 0;
-     for (index = 0; index < treeSize; index++)
-         tree[index] = -2;
-     document.getElementById('msg').innerHTML = 'Select the first foldpoint';
-     for (index = 0; index < n; index++)
-         document.getElementById(combineSpanId(index)).innerHTML = '<input type="radio" name="0" value="0" onclick="selected(this.value);" />';
-
-
+     d=document.createElement('div');
+     d.innerHTML = $('#folding-equation-container').html();
+     d.id = "equation-" + globalEquationCount;
+     d.className="equation";
+     
+     /*
+	  $('.up,.down').hide();
+ $('.buttonup').click(function(e)
+	   {
+		  $(this).parent().children('.up').show();
+	   });
+	   $('.buttondown').click(function(e)
+	   {
+		  $(this).parent().children('.down').show();
+	   });
+*/
+     $('#editor').append(d);
+      $('#folding-container').fadeOut(1000);
+     $('#folding-equation-container').html("");
+     $('#overlay').fadeOut(1300);
+     document.execCommand("enableObjectResizing", false, false);
+     document.getElementById('equation-preview').innerHTML = "";
+     document.getElementById('inputbox').value = "";
+     checkForNewReference(globalEquationCount);
+	 $('.buttonup,.buttondown').hide();
+	 
  }
 
+function chooseFold( l,  u, type,eqno)
+{
+    
+    if(l==u)
+    {
+        var d = document.createElement('div');
+		if(type=="up")d.className="up";
+		else d.className = "down";
+		d.innerHTML = "`"+ Equations[eqno][l] + "`"//+ "<button class='buttonup'>▲</buttton><button class='buttondown'>▼</buttton>";
+		d.id='equation-' + (Number(eqno)+1) + "-" + l;
+		return d;
+	}
+	else
+	{
+		var fid = prompt("Enter the fold between" + l + "and" + u); 
+		 var d = document.createElement('div');
+		if(type=="up")d.className="up";
+		else if(type=="down")d.className = "down";
+		d.id='equation-' + (Number(eqno)+1) + "-" + fid;
+		if(l<= Number(fid)-1)d.appendChild(chooseFold( l,  Number(fid)-1, "up" ,eqno));
+        
+		d.innerHTML = d.innerHTML + "`" + Equations[eqno][fid] + "`" ;
+        if(l<= Number(fid)-1)d.innerHTML = d.innerHTML + "<button class='buttonup'>▲</buttton>";
+        if( Number(fid)+1<=u)d.innerHTML = d.innerHTML + "<button class='buttondown'>▼</buttton>";
+            
+		if( Number(fid)+1<=u)d.appendChild(chooseFold( Number(fid)+1,  u, "down",eqno));
+		return d;	
+	}
+}
 
 
  //////////////////////////////Folding part ends//////////////////////////////////////////////////////////
