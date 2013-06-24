@@ -14,15 +14,15 @@
 <script src="js/main.js"></script>
 <script src="js/jquery.selection.js"></script>
   
-<script type="text/javascript" src="./mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script> 
+<!--<script type="text/javascript" src="./mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script> -->
 
-<!--<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script>
--->
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script>
+
 </head>
 
 <body onload="body_load()">
 <div class="container_12" id="main-container">
-  <div class="grid_12" id="title"> Mathifold </div>
+  <div class="grid_12" id="title"> Mathifold <br/> <div id="loading"> loading</div></div>
   <div class="grid_12" id="space"> </div>
   <div id="wrapper">
     <div class="grid_3" id="sidebar">
@@ -142,9 +142,10 @@
   <h1> Folding</h1>
   <div id="folding-equation-container"></div>
   <!--<button id="submitinput" value="Done" onclick="storeFolds()">Done</button>--> 
-</div>
+</div><!--
 <textarea id="preview">
 
 </textarea>
+-->
 </body>
 </html>

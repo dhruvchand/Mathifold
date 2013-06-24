@@ -12,7 +12,6 @@ header('Content-Type: text/html; charset=utf-8');
 $equations = json_decode(stripslashes($_POST['Equations']));
 $references = json_decode(stripslashes(unicode_escape_sequences($_POST['References'])));
 $textreferences = json_decode(stripslashes(unicode_escape_sequences($_POST['TextReferences'])));
-$folds = json_decode(stripslashes($_POST['Folds']));
 $equationCount=  json_decode(stripslashes($_POST['EquationCount']));
 $referencecount=  json_decode(stripslashes($_POST['ReferenceCount']));
 $textreferencecount=  json_decode(stripslashes($_POST['TextReferenceCount']));
@@ -22,6 +21,7 @@ $temp=$equations;
 
 
 //Debug
+/*
 echo implode("-",$equations);
 echo  $references[0][0];
 echo implode("-",$textreferences ) ;
@@ -31,30 +31,33 @@ echo $referencecount;
 echo $textreferencecount;
 
 
-
+*/
 //text reference processing [global]
 for($k=0;$k<$textreferencecount;$k++)
 {
-	echo "reference is".$textreferences[$k][0];
+	//echo "reference is".$textreferences[$k][0];
 	$html_code = preg_replace('/'.$textreferences[$k][0].'/', '<span class="text-reference">'.$textreferences[$k][0]."</span>",$html_code);
 }
+?>
 
-echo "<html>
+<html>
 <head>
-<title>Mathifold Document</title>
 
+
+<title>Mathifold Document</title>
+<!--
 <link rel='stylesheet' href='js/jquery-ui/themes/base/jquery-ui.css' />
 <script src='js/jquery-1.8.3.min.js'></script>
 <script src='js/jquery-ui/ui/jquery-ui.js'></script>
 <script type='text/javascript' src='mathjax/MathJax.js?config=AM_HTMLorMML'></script>
 <script src='js/jquery.scrollTo.min.js'></script>
-<!--
+-->
+
 <link rel='stylesheet' href='http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css' />
 <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
 <script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js'></script>
 <script type='text/javascript' src='http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML'></script>
 <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/1.4.3/jquery.scrollTo.min.js'></script>
--->
 
 <style type='text/css'>
 .reference:hover
@@ -81,16 +84,35 @@ function htmlDecode(input){
 }
 
 function init()
-{	  
+{	  	
+
 	  var newIframe = document.getElementById('reference-container');	 
-	  var content = '<!DOCTYPE html><html><head> </head>'
-    + '<body>'+ document.getElementById('mathifold-container').innerHTML   +'</body></html>';
+	  var content = "<!DOCTYPE html><html><head> </head>"  ;
+	   var content = content  + '<body>' ;
+		 var content = content  + document.getElementById('mathifold-container').innerHTML   + '</body></html>';
 
 newIframe.contentWindow.document.open('text/html', 'replace');
 newIframe.contentWindow.document.write(content);
 newIframe.contentWindow.document.close();
+    
+	 var script   = document.createElement("script");
+script.type  = "text/javascript";
+script.src   = "http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js";    
+newIframe.contentWindow.document.body.appendChild(script);
+
+    var script   = document.createElement("script");
+script.type  = "text/javascript";
+script.src   = "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML";    
+newIframe.contentWindow.document.body.appendChild(script);
+
+
 	  
+    var script   = document.createElement("script");
+script.type  = "text/javascript";
+script.text  = "MathJax.Hub.Queue(['Typeset',MathJax.Hub]);$('.up,.down').show();$('.buttonup,.buttondown').hide(); "               
+newIframe.contentWindow.document.body.appendChild(script);
 	  
+    
 	  //  $( document ).tooltip({
 // open: function( event, ui ) {MathJax.Hub.Queue(['Typeset',MathJax.Hub]);MathJax.Hub.Queue(reference);}
 //});
@@ -106,6 +128,7 @@ newIframe.contentWindow.document.close();
 
 function initFolding()
 {
+     init();
 
  $('.buttonup,.buttondown').show();
   $('.up,.down').hide();
@@ -117,32 +140,28 @@ function initFolding()
 	   {
 		  $(this).parent().children('.down').show();
 	   });
+	   
+	  
 }
-</script>";
+</script>
 
 
 
-echo "<script type='text/javascript'>
-
- 
-
-</script>";
 
 
-
-echo "</head><body onload='initFolding()'><div id='mathifold-container'>";
-
+</head><body onload='initFolding()'><div id='mathifold-container'>
+<?php
 echo $html_code;
+?>
 
-echo "
 </div>
 <div id='reference-box'>
 <iframe id='reference-container'>
 
 </iframe>
 </div>
-</body>";
-
+</body>
+<?php
 //references
 echo "<script type='text/javascript'>
 function reference(){
@@ -171,9 +190,10 @@ $('.mi, .mo, .msub, .msubsup, .mover, .msup').click ( function(event) {
 	{
         event.stopPropagation();
 		$( '#reference-container' ).dialog('open');
-		alert($(this).attr ( 'title' ));
+		//alert($(this).attr ( 'title' ));
 		$('#reference-container').scrollTo('#'+$(this).attr ( 'title' )); 
 	}
+	
 });
 
 $('.text-reference').click ( function() {
@@ -183,6 +203,9 @@ $('.text-reference').click ( function() {
 		//alert($(this).attr ( 'title' ));
 		$('#reference-container').scrollTo('#'+$(this).attr ( 'title' )); 
 	}
+	
+	
+	
 });
 
 }</script>

@@ -2,9 +2,10 @@
  var referenceSelection;
 var querystring 
  var referenceTempArray;
+var tempReferenceStorage = new Array();
 
  function body_load() {
-     setTimeout("$('#title').animate({fontSize:'32px',marginTop:'0px',opacity:1},1000); $('#wrapper').fadeIn(700);", 1000);
+     setTimeout("$('#title').animate({fontSize:'32px',marginTop:'0px',opacity:1},1000); $('#loading').fadeOut(700);$('#wrapper').fadeIn(700);", 1000);
      $("#editor").keydown(function (e) {
          
 
@@ -37,7 +38,7 @@ var querystring
      div.id = 'equation-' + globalEquationCount + "-" + subEquationCount;
      div.className = "equation-step";
      document.getElementById("equation-preview").appendChild(div);
-	     alert('equation-' + globalEquationCount + "-" + subEquationCount);
+	   //  alert('equation-' + globalEquationCount + "-" + subEquationCount);
          //	var div = document.createElement("div");
          //div.id = 'mod-'+globalEquationCount+"-"+subEquationCount;
          //div.innerHTML="<img class='up-down'  src='img/up.png'  onclick='stepUp("+subEquationCount+");'></img> <img class='up-down'  src='img/down.png'  onclick='stepDown("+subEquationCount+");'></img>";
@@ -55,7 +56,7 @@ var querystring
      {
      //Store in Eqn DB
      Equations[globalEquationCount - 1][subEquationCount] = document.getElementById('inputbox').value;
-         alert(Equations[globalEquationCount - 1][subEquationCount]);
+        // alert(Equations[globalEquationCount - 1][subEquationCount]);
      }
      //Housekeeping
      document.getElementById('inputbox').value = "";
@@ -64,7 +65,7 @@ var querystring
      div.id = 'equation-' + globalEquationCount + "-" + subEquationCount;
      div.className = "equation-step";
      document.getElementById("equation-preview").appendChild(div);
-     alert('equation-' + globalEquationCount + "-" + subEquationCount);
+    // alert('equation-' + globalEquationCount + "-" + subEquationCount);
      //var div = document.createElement("div");
      //	div.id = 'mod-'+globalEquationCount+"-"+subEquationCount;
      //div.innerHTML="<img class='up-down'  src='img/up.png'  onclick='stepUp("+subEquationCount+");'></img> <img class='up-down'  src='img/down.png'  onclick='stepDown("+subEquationCount+");'></img>";
@@ -135,14 +136,14 @@ var querystring
      span.class = "reference-placeholder";
      References[referenceCount] = [referenceData, "reference-" + referenceCount,null];
      referenceCount++;
-     alert($(node).closest(".MathJax").attr('id'));
+    // alert($(node).closest(".MathJax").attr('id'));
      $(node).closest(".MathJax").before(span);
  }
 
  function newTextReference()
  {
 	 referenceData = seltext;
-  //  alert(seltext);  
+    alert("You referenced the word/phrase '" + seltext+ "'" );  
 var span = document.createElement("span");
    span.id = "text-reference-" + TextreferenceCount;
   span.class = "text-reference-placeholder";    
@@ -175,10 +176,10 @@ function checkForNewReference(div) {
      //var i =0;
      referenceTempArray = new Array();
     //Clear existing reference temp array and destroy any open alerts
-    
-    
+     $( tempReferenceStorage[0]).css("color",  tempReferenceStorage[1]);
+     $(".bottom-alert").remove();
     //get list of mitems added
-     $("#equation-" + div).find(".mi").each(function (index, element) {
+     $("#" + div).find(".mi").each(function (index, element) {
          //if((!isReference($(element).text(),$(element).css('font-weight')))&&done.indexOf($(element).text())== -1 )
          if (!isReference($(element).text())) {
              //done[i] = $(element).text();
@@ -193,10 +194,10 @@ function checkForNewReference(div) {
 
  
 function addAutoReference(element) {
-     alert($(element).text());
+     alert("Reference added.");
      References[referenceCount] = [$(element).text(), "reference-" + referenceCount,".mi:contains("+$(element).text()+")"];
 
-     alert($(element).closest(".MathJax").attr('id'));
+    // alert($(element).closest(".MathJax").attr('id'));
 
      var span = document.createElement("span");
      span.id = "reference-" + referenceCount;
@@ -219,8 +220,19 @@ function addAutoReference(element) {
 	 altq= querystring;
  //   alert(($($.selection('html'))[0]).attr('id') );
  //  var parentid = "#"+$(".math",$.selection('html')).attr('id')+" ";
-   var parentid = "#" + $(getSelectionParentElement()).parents('.math').attr('id')+" ";
-    alert(parentid + ".mi"+querystring);
+  
+    if($(getSelectionParentElement()).parents('.math').attr('id')==undefined && $($.selection("html")).filter('.MathJax').attr('id') ==undefined)
+    {
+        alert('There was an error in processing your selection, please try selecting again.');
+    }
+    else
+    {
+         var parentid = "#" + $(getSelectionParentElement()).parents('.math').attr('id')+" ";
+        if($(getSelectionParentElement()).parents('.math').attr('id') == undefined)         
+            parentid = "#" + $($.selection("html")).filter('.MathJax').attr('id') +" " ;
+       
+         
+ alert("You selected: " + $.selection());
     
 	if($(parentid + ".mi"+querystring).attr("id")!=null)
 	{
@@ -253,7 +265,7 @@ function addAutoReference(element) {
 		querystring = ".mover"+querystring;
 	}
 	
-	alert('selected node id'  + node.attr('id'));
+	//alert('selected node id'  + node.attr('id'));
 	
 	//Add reference to References array and create placeholder
 	
@@ -262,13 +274,17 @@ function addAutoReference(element) {
      span.class = "reference-placeholder";
      References[referenceCount] = [$.selection(), "reference-" + referenceCount,querystring];
      referenceCount++;
-     alert(node.closest(".MathJax").attr('id'));
+    // alert(node.closest(".MathJax").attr('id'));
      node.closest(".MathJax").before(span);
-		alert($.selection()+ "reference-" + referenceCount+	querystring);
+		//alert($.selection()+ "reference-" + referenceCount+	querystring);
+    }
 }
 
 
  function referenceAlert(element) {
+     tempReferenceStorage[0] = element;
+     tempReferenceStorage[1] =  $(element).css("color");
+     
      var size = $(element).css("color");
      $(element).css("color", "#FFF");
      var symbol = $(element).text();
@@ -297,7 +313,7 @@ function addAutoReference(element) {
          var temp;
          $(element).css("color", size);
          $(".bottom-alert").remove();
-         while (((temp = referenceTempArray.pop()) != null) && isReference($(temp).text(), $(temp).css('font-weight'))) {
+         while (((temp = referenceTempArray.pop()) != null) && isReference($(temp).text())) {
 
          }
          if (temp != null) {
@@ -309,7 +325,7 @@ function addAutoReference(element) {
          var temp;
          $(element).css("color", size);
          $(".bottom-alert").remove();
-         while (((temp = referenceTempArray.pop()) != null) && isReference($(temp).text(), $(temp).css('font-weight'))) {
+         while (((temp = referenceTempArray.pop()) != null) && isReference($(temp).text())) {
 
          }
          if (temp != null) {
@@ -372,7 +388,6 @@ function getSelectionParentElement() {
 
          "Equations": JSON.stringify(Equations),
          "References": JSON.stringify(References),
-         "Folds": JSON.stringify(Folds),
          "HTML": html,
          "EquationCount": globalEquationCount,
          "ReferenceCount": referenceCount,
@@ -464,13 +479,14 @@ function postData(path, params) {
 	   });
 */
      $('#editor').append(d);
+	 $('#editor').append("<br/>");
       $('#folding-container').fadeOut(1000);
      $('#folding-equation-container').html("");
      $('#overlay').fadeOut(1300);
      document.execCommand("enableObjectResizing", false, false);
      document.getElementById('equation-preview').innerHTML = "";
      document.getElementById('inputbox').value = "";
-     checkForNewReference(globalEquationCount);
+     checkForNewReference("equation-"+globalEquationCount);
 	 $('.buttonup,.buttondown').hide();
 	 
  }
@@ -487,9 +503,9 @@ function chooseFold( l,  u, type,eqno)
 		d.id='equation-' + (Number(eqno)+1) + "-" + l;
 		return d;
 	}
-	else
+	else 
 	{
-		var fid = prompt("Enter the fold between" + l + "and" + u); 
+		var fid = prompt("Enter a fold number between " + l + " and " + u+ "."); 
 		 var d = document.createElement('div');
 		if(type=="up")d.className="up";
 		else if(type=="down")d.className = "down";
