@@ -7,5 +7,3 @@ var TextreferenceCount = 0;
 var Equations = new Array();
 var References = new Array();
 var TextReferences = new Array();
-var Folds = new Array();
-var EquationMapping = new Array();

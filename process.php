@@ -1,5 +1,7 @@
 <?php
+$title = $_POST["Title"];
 header('X-XSS-Protection: 0');
+header('Content-Disposition: attachment; filename="'.$title.".html".'"');
 header('Content-Type: text/html; charset=utf-8');
 
  
@@ -17,7 +19,6 @@ $referencecount=  json_decode(stripslashes($_POST['ReferenceCount']));
 $textreferencecount=  json_decode(stripslashes($_POST['TextReferenceCount']));
 $html_code = stripslashes($_POST['HTML']);
 
-$temp=$equations;
 
 
 //Debug
@@ -44,7 +45,7 @@ for($k=0;$k<$textreferencecount;$k++)
 <head>
 
 
-<title>Mathifold Document</title>
+<title><?php echo $title;?></title>
 <!--
 <link rel='stylesheet' href='js/jquery-ui/themes/base/jquery-ui.css' />
 <script src='js/jquery-1.8.3.min.js'></script>
@@ -122,6 +123,8 @@ newIframe.contentWindow.document.body.appendChild(script);
 	MathJax.Hub.Queue(['Typeset',MathJax.Hub]);MathJax.Hub.Queue(reference);
 
 	  reference();
+	  
+	  
 	 
 	
 }
@@ -172,6 +175,14 @@ for($i=0;$i<$referencecount;$i++){
 $p = " $(htmlDecode('".$references[$i][2]."')).attr('title','".$references[$i][1]."');";
 echo $p;
 }
+ 
+$equations = json_decode(stripslashes($_POST['Equations']));
+$references = json_decode(stripslashes(unicode_escape_sequences($_POST['References'])));
+$textreferences = json_decode(stripslashes(unicode_escape_sequences($_POST['TextReferences'])));
+$equationCount=  json_decode(stripslashes($_POST['EquationCount']));
+$referencecount=  json_decode(stripslashes($_POST['ReferenceCount']));
+$textreferencecount=  json_decode(stripslashes($_POST['TextReferenceCount']));
+$html_code = stripslashes($_POST['HTML']);
 
 
 for($i=0;$i<$textreferencecount;$i++){	

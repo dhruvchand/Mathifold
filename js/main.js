@@ -4,6 +4,11 @@ var querystring
  var referenceTempArray;
 var tempReferenceStorage = new Array();
 
+
+
+
+
+
  function body_load() {
      setTimeout("$('#title').animate({fontSize:'32px',marginTop:'0px',opacity:1},1000); $('#loading').fadeOut(700);$('#wrapper').fadeIn(700);", 1000);
      $("#editor").keydown(function (e) {
@@ -18,10 +23,35 @@ var tempReferenceStorage = new Array();
             
          }
      });
+     $('#editor').delegate('.edit-button','click',function(e){
+     	alert('boo');
+     });
+     
+     $('#editor').delegate('.equation','mouseenter',function(e){
+     	$('#statusbox').text(e.currentTarget.id);
+     });
+     
+      $('#editor').delegate('.equation','mouseleave',function(e){
+     	$('#statusbox').text(" ");
+     });
+     
+document.execCommand("enableObjectResizing", false, false);
+
  }
+///////////////////////////////////////////Equations///////////////
 
+//Equation deletion handler
+$( ".equation" ).bind(
+"DOMNodeRemoved",
+function( e ){
+e.stopPropagation();
+alert('asds');
+
+}
+);
+ 
  function loadEditor(eqn) {
-
+ range = window.getSelection().getRangeAt(0); 
      if (eqn == null) {
 	     document.getElementById('inputbox-lhs').value = "";
          document.getElementById('inputbox').value = "";
@@ -80,9 +110,8 @@ var tempReferenceStorage = new Array();
 
  function rerender() {
      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-     //MathJax.Hub.Queue(resetCursor);
-    // alert($("#editor .MathJax").last().attr("id"));
-     checkForNewReference($("#editor .MathJax").last().attr("id"));
+    checkForNewReference($("#editor .MathJax").last().attr("id"));
+     
 
  }
 
@@ -92,11 +121,7 @@ var tempReferenceStorage = new Array();
      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
  }
 
- function resetCursor() {
-     var t2 = document.getElementById("editor");
-     t2.focus();
-     t2.value = t2.value;
- }
+
 
  function appendFromPalette(arg) {
 
@@ -112,17 +137,72 @@ var tempReferenceStorage = new Array();
  function appendEquation() {
      Equations[globalEquationCount - 1][subEquationCount] = document.getElementById('inputbox').value;
 
-     document.getElementById('editor').innerHTML = document.getElementById('editor').innerHTML + "<div class='equation'  style='position:inline;height:auto;' id='equation-" + globalEquationCount + "' > " + " " + document.getElementById('equation-preview').innerHTML + "</div><br/>";
+
+d=document.createElement('div');
+     d.innerHTML = document.getElementById('equation-preview').innerHTML;
+     d.id = "equation-" + globalEquationCount;
+     d.className="equation";
+     var btn = document.createElement('button');
+     btn.className = "equation-button";
+     btn.innerHTML = "Edit";
+     d.appendChild(btn);
+       range.deleteContents();
+   // place your span
+   range.insertNode(d);
+   
      $('#equation-container').fadeOut(1000);
      $('#overlay').fadeOut(1300);
      document.execCommand("enableObjectResizing", false, false);
      document.getElementById('equation-preview').innerHTML = "";
      document.getElementById('inputbox').value = "";
-     checkForNewReference(globalEquationCount);
+     checkForNewReference('equation-'+globalEquationCount);
+     refreshEquationNumbers();
  }
 
 
-
+function  refreshEquationNumbers()
+{
+	
+	$.each($('.equation'),function(index,obj){
+		
+		var EqnNo = $(obj).attr('id');
+		EqnNo = EqnNo.replace("equation-","");
+		if((Number(index)+1)!=EqnNo)
+		{
+			//swap array objects
+			var theOtherIndex = (Number(index)+1);
+			var temp = Equations[index];
+			 Equations[index] = Equations[Number(EqnNo)-1];
+			 Equations[Number(EqnNo)-1] = temp;
+			 
+			 //swap equation IDs
+			 $(obj).attr('id',"temp");
+			 $('#equation-'+(Number(index)+1)).attr('id','equation-'+EqnNo);
+			$(obj).attr('id','equation-'+theOtherIndex);
+			//swap step IDs
+			$.each($('[id^=equation-' +theOtherIndex + '-]'),function(index,obj){
+				var temp = $(obj).attr('id');
+				temp = temp.replace("equation-"+theOtherIndex+"-","temp-");
+				$(obj).attr('id',temp);
+			});
+			
+			$.each($('[id^=equation-' + EqnNo + '-]'),function(index,obj){
+				var temp = $(obj).attr('id');
+				temp = temp.replace("equation-"+EqnNo+"-","equation-"+theOtherIndex+"-");
+				$(obj).attr('id',temp);
+			});
+			
+			$.each($('[id^=temp-]'),function(index,obj){
+				var temp = $(obj).attr('id');
+				temp = temp.replace("temp-","equation-"+EqnNo+"-");
+				$(obj).attr('id',temp);
+			});
+			
+			//Phew.
+		}
+	});
+	
+}
 
 ///////////////////////Referencing Logic////////////////////////////
 
@@ -235,7 +315,7 @@ function addAutoReference(element) {
  alert("You selected: " + $.selection());
     
 	if($(parentid + ".mi"+querystring).attr("id")!=null)
-	{
+	{ refreshEquationNumbers();
 		node=$(parentid + ".mi"+querystring);
 		querystring = ".mi"+querystring;
 	}
@@ -303,7 +383,7 @@ function addAutoReference(element) {
          if (temp != null) {
 
              referenceAlert(temp);
-         }
+         } refreshEquationNumbers();
      })
          .hide()
          .slideToggle(300);
@@ -381,8 +461,14 @@ function getSelectionParentElement() {
 
 
    
-     /////
-
+   
+     if(storename!=undefined){
+     var title = storename;
+     }
+     else
+     {
+     	 var title = prompt("Enter the title of your Mathifold document?");
+     }
      var html = document.getElementById('editor').innerHTML;
      dataObj = {
 
@@ -392,29 +478,69 @@ function getSelectionParentElement() {
          "EquationCount": globalEquationCount,
          "ReferenceCount": referenceCount,
 		 "TextReferenceCount": TextreferenceCount,
-		 "TextReferences": JSON.stringify(TextReferences)
+		 "TextReferences": JSON.stringify(TextReferences),
+         "Title":title
      };
 
 
      postData("./process.php", dataObj);
 
  }
+ 
+ function Open()
+ {
+ 	
+ 	
+ 	var title = prompt("Enter the title of your Mathifold document?");
+     var key = prompt("Enter the passkey you used for saving your Mathifold document.");
+     dataObj = {
+         "Title":title,
+         "Key" : key
+     };
+
+
+     postData("./index.php", dataObj);
+ }
 
 function Save()
 {
-      var html = document.getElementById('editor').innerHTML;
-      dataObj = {
+        
+     if(storename!=undefined){
+     var title = storename;
+     var key = storekey;
+    var update = 1;
+     }
+     else
+     {
+     	 var title= prompt("What is that title of your Mathifold document?");
+     	  var key = prompt("Enter the passkey you used saving your Mathifold document.");
+     	  var update = 0;
+     }
+    
+     var html = document.getElementById('editor').innerHTML;
+     dataObj = {
 
          "Equations": JSON.stringify(Equations),
          "References": JSON.stringify(References),
-         "Folds": JSON.stringify(Folds),
          "HTML": html,
          "EquationCount": globalEquationCount,
          "ReferenceCount": referenceCount,
 		 "TextReferenceCount": TextreferenceCount,
 		 "TextReferences": JSON.stringify(TextReferences),
-        "subEquationCount":subEquationCount
+         "Title":title,
+         "Key" : key,
+         "Update":update
      };
+
+
+    jQuery.post("./save.php", dataObj,function()
+    {
+    	alert('Saved.');
+    	storename = title;
+      storekey = key;
+    var update = 1;
+    }
+    );
     
 }
 
@@ -456,16 +582,20 @@ function postData(path, params) {
 	 	 var d = document.createElement('div');
 		d.innerHTML = "`"+ Equations[globalEquationCount - 1][0] + "`";
 		 d.id='equation-' + globalEquationCount + "-0";
-		d.className='lhs';
+		d.className='lhs equation-step';
    $('#folding-equation-container').append(d);
      d =  chooseFold(1,subEquationCount,"first",globalEquationCount - 1);
-     d.className="rhs";
+     d.className="rhs equation-step";
 	 $('#folding-equation-container').append(d);
      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
      d=document.createElement('div');
      d.innerHTML = $('#folding-equation-container').html();
      d.id = "equation-" + globalEquationCount;
      d.className="equation";
+     var btn = document.createElement('button');
+     btn.className = "equation-button";
+     btn.innerHTML = "Edit";
+     d.appendChild(btn);
      
      /*
 	  $('.up,.down').hide();
@@ -478,8 +608,11 @@ function postData(path, params) {
 		  $(this).parent().children('.down').show();
 	   });
 */
-     $('#editor').append(d);
-	 $('#editor').append("<br/>");
+   range.deleteContents();
+   // place your span
+   range.insertNode(d);
+   //  $('#editor').append(d);
+	// $('#editor').append("<br/>");
       $('#folding-container').fadeOut(1000);
      $('#folding-equation-container').html("");
      $('#overlay').fadeOut(1300);
@@ -488,7 +621,7 @@ function postData(path, params) {
      document.getElementById('inputbox').value = "";
      checkForNewReference("equation-"+globalEquationCount);
 	 $('.buttonup,.buttondown').hide();
-	 
+	  refreshEquationNumbers();
  }
 
 function chooseFold( l,  u, type,eqno)
@@ -559,19 +692,6 @@ function chooseFold( l,  u, type,eqno)
 
 
 
-function toUnicode(theString) {
-  var unicodeString = '';
-  for (var i=0; i < theString.length; i++) {
-    var theUnicode = theString.charCodeAt(i).toString(16).toUpperCase();
-    while (theUnicode.length < 4) {	
-      theUnicode = '0' + theUnicode;
-    }
-    theUnicode = '\\u' + theUnicode;
-      if(theUnicode!="\\u0020")
-    unicodeString += theUnicode;
-  }
-  return unicodeString;
-}
 
 function getQuery(theString)
 {
@@ -590,4 +710,9 @@ function getQuery(theString)
   return unicodeString.replace(":contains(\r)","").replace(":contains(&nbsp;)","")	;
 	
 }
+
+
+
+
+
 
