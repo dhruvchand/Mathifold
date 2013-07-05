@@ -95,7 +95,7 @@ function htmlDecode(input){
 function init()
 {	  	
 
-$('equation-button').remove();
+$('.equation-button').remove();
 	  var newIframe = document.getElementById('reference-container');	 
 	  var content = "<!DOCTYPE html><html><head> </head>"  ;
 	   var content = content  + '<body>' ;
