@@ -82,6 +82,10 @@ background-color:red;
 {
 	color:#0000AA;
 }
+.equation-button
+{
+	display:none;
+}
 </style>
 
 <script type='text/javascript'>

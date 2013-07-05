@@ -141,7 +141,7 @@ d=document.createElement('div');
        range.deleteContents();
    // place your span
    range.insertNode(d);
-   
+   range.insertNode(document.createElement('br'));
      $('#equation-container').fadeOut(1000);
      $('#overlay').fadeOut(1300);
      document.execCommand("enableObjectResizing", false, false);
@@ -154,6 +154,11 @@ d=document.createElement('div');
 
 function  refreshEquationNumbers()
 {
+	//delete empty equations first
+	$.each($('.equation'),function(index,obj){
+		if($(obj).text()=="")
+		obj.remove();
+	});
 	
 	$.each($('.equation'),function(index,obj){
 		
@@ -633,6 +638,8 @@ function postData(path, params) {
    range.deleteContents();
    // place your span
    range.insertNode(d);
+      range.insertNode(document.createElement('br'));
+
    //  $('#editor').append(d);
 	// $('#editor').append("<br/>");
       $('#folding-container').fadeOut(1000);
