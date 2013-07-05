@@ -1,7 +1,7 @@
 <?php
 $title = $_POST["Title"];
 header('X-XSS-Protection: 0');
-//header('Content-Disposition: attachment; filename="'.$title.".html".'"');
+header('Content-Disposition: attachment; filename="'.$title.".html".'"');
 header('Content-Type: text/html; charset=utf-8');
 
  
@@ -82,10 +82,7 @@ background-color:red;
 {
 	color:#0000AA;
 }
-.equation-button
-{
-	display:none;
-}
+
 </style>
 
 <script type='text/javascript'>
@@ -98,6 +95,7 @@ function htmlDecode(input){
 function init()
 {	  	
 
+$('equation-button').remove();
 	  var newIframe = document.getElementById('reference-container');	 
 	  var content = "<!DOCTYPE html><html><head> </head>"  ;
 	   var content = content  + '<body>' ;
