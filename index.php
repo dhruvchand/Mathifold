@@ -76,9 +76,9 @@ else {
 <script src="js/main.js"></script>
 <script src="js/jquery.selection.js"></script>
   <script src="js/jquery.at.caret.min.js"></script>
-<script type="text/javascript" src="./mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script> 
+<!--<script type="text/javascript" src="./mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script> -->
 
-<!--<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script>-->
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script>
 </head>
 
 <body onload="body_load()">
