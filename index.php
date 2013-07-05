@@ -92,10 +92,11 @@ else {
         	<button onclick="newReference()">+reference</button> 
         	<button onclick="rerender()">+rerender</button> 
         	<button onclick="newTextReference()">+teference</button>
+        	    	<button onclick="EquationReference();">+eference</button>
         	 <button onclick="Export();">-export</button>
         	  <button onclick="Open();">-open</button>
         	  <button onclick="Save();">-save</button>
-        	
+    
         </div>
         <div id="reference-tools"> <span onclick="addReference()"> -Done </span> </div>
       </div>

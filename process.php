@@ -1,7 +1,7 @@
 <?php
 $title = $_POST["Title"];
 header('X-XSS-Protection: 0');
-header('Content-Disposition: attachment; filename="'.$title.".html".'"');
+//header('Content-Disposition: attachment; filename="'.$title.".html".'"');
 header('Content-Type: text/html; charset=utf-8');
 
  
@@ -19,6 +19,9 @@ $referencecount=  json_decode(stripslashes($_POST['ReferenceCount']));
 $textreferencecount=  json_decode(stripslashes($_POST['TextReferenceCount']));
 $html_code = stripslashes($_POST['HTML']);
 
+
+//Equation References are enclosed in divs
+//$html_code = preg_replace('/[^\"]((equation)|(eqn))[\s-](\d+)/i',"<span class='equation-reference' data-pointsTo='$4'>$0</span>", $html_code);
 
 
 //Debug
@@ -74,6 +77,10 @@ background-color:red;
 {
 	display:inline-block;
 	vertical-align:top;
+}
+.equation-reference
+{
+	color:#0000AA;
 }
 </style>
 
@@ -219,7 +226,20 @@ $('.text-reference').click ( function() {
 	
 });
 
-}</script>
+
+$('.equation-reference').click ( function() {
+  
+		$( '#reference-container' ).dialog('open');
+	//	alert('#'+'equation-'+$(this).data( 'pointsto'));
+		$('#reference-container').scrollTo('#'+'equation-'+$(this).data( 'pointsto')); 
+	 // alert('#'+'equation-'+$(this).data('pointsto'));
+	
+	
+	
+});
+
+}
+</script>
  <script>
 $(function() {
 $( '#reference-container' ).dialog({

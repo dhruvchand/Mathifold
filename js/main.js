@@ -40,15 +40,7 @@ document.execCommand("enableObjectResizing", false, false);
  }
 ///////////////////////////////////////////Equations///////////////
 
-//Equation deletion handler
-$( ".equation" ).bind(
-"DOMNodeRemoved",
-function( e ){
-e.stopPropagation();
-alert('asds');
 
-}
-);
  
  function loadEditor(eqn) {
  range = window.getSelection().getRangeAt(0); 
@@ -174,6 +166,21 @@ function  refreshEquationNumbers()
 			var temp = Equations[index];
 			 Equations[index] = Equations[Number(EqnNo)-1];
 			 Equations[Number(EqnNo)-1] = temp;
+			 //Swap equation references
+			
+			 $.each($('[data-pointsto=' +EqnNo + ']'),function(index,obj){
+				obj.dataset.pointsto = 'temp';
+				$(obj).html('equation '+theOtherIndex );
+			});
+			
+			$.each($('[data-pointsto=' +theOtherIndex + ']'),function(index,obj){
+				obj.dataset.pointsto = EqnNo;
+				$(obj).html('equation '+EqnNo );
+			});
+			
+			$.each($('[data-pointsto=temp]'),function(index,obj){
+				obj.dataset.pointsto = theOtherIndex;
+			});
 			 
 			 //swap equation IDs
 			 $(obj).attr('id',"temp");
@@ -206,6 +213,18 @@ function  refreshEquationNumbers()
 
 ///////////////////////Referencing Logic////////////////////////////
 
+function EquationReference()
+{
+	
+	var eqnnumber = prompt("Enter the equation number.");
+	 var div = document.createElement("span");
+     div.dataset.pointsto = eqnnumber;
+     div.className = "equation-reference";
+     div.innerHTML = " equation "+eqnnumber;
+	 range.deleteContents();
+   // place your span
+   range.insertNode(div);
+}
 //Obsolete, replaced with new fn haandling compound vars
  function newReferenceObsolete() {
      //reference - symbol,[style NOT IMPLEMENTED]
@@ -240,6 +259,9 @@ var span = document.createElement("span");
     TextreferenceCount++;
  
  }
+ 
+
+ 
 
  function isReference(symbol) {
      for (var i = 0; i < referenceCount; i++) {
@@ -460,7 +482,7 @@ function getSelectionParentElement() {
  function Export() {
 
 
-   
+    
    
      if(storename!=undefined){
      var title = storename;
