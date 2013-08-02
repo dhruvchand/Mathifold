@@ -22,7 +22,10 @@ body
 	background-position:center;
 }
 
-
+a{
+	color:#000;
+	font-style: none;
+}
 #editor{
 
 background-color:rgba(0,0,0,0.2);
@@ -251,7 +254,7 @@ font-family:"Raleway",sans-serif;
 
 .equation button
 {
-	display:none;
+	
 }
 
 .equation:hover button
@@ -274,4 +277,12 @@ font-family:"Raleway",sans-serif;
 {
 	color:#0000BB;
 }
+
+
+.qs
+{
+	font-family:sans-serif;
+	font-size:12px;
+	color:rgba(0,0,0,1);
+	font-style: italic;
 }

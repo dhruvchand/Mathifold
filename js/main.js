@@ -4,7 +4,10 @@ var querystring
  var referenceTempArray;
 var tempReferenceStorage = new Array();
 
+///Equation editor variables
 
+
+//End
 
 
 
@@ -23,8 +26,15 @@ var tempReferenceStorage = new Array();
             
          }
      });
-     $('#editor').delegate('.edit-button','click',function(e){
-     	alert('boo');
+     $('#editor').delegate('.equation-button','click',function(e){	
+		
+     	editEquation(e.srcElement.parentElement.id.replace("equation-",""));
+     });
+     
+      $('#editor').delegate('.delete-button','click',function(e){	
+		
+     	e.srcElement.parentElement.innerHTML = "";
+     	refreshEquationNumbers();
      });
      
      $('#editor').delegate('.equation','mouseenter',function(e){
@@ -42,9 +52,9 @@ document.execCommand("enableObjectResizing", false, false);
 
 
  
- function loadEditor(eqn) {
+ function loadEditor() {
  range = window.getSelection().getRangeAt(0); 
-     if (eqn == null) {
+    
 	     document.getElementById('inputbox-lhs').value = "";
          document.getElementById('inputbox').value = "";
          globalEquationCount++;
@@ -65,8 +75,29 @@ document.execCommand("enableObjectResizing", false, false);
          //div.id = 'mod-'+globalEquationCount+"-"+subEquationCount;
          //div.innerHTML="<img class='up-down'  src='img/up.png'  onclick='stepUp("+subEquationCount+");'></img> <img class='up-down'  src='img/down.png'  onclick='stepDown("+subEquationCount+");'></img>";
          
-     }
+  
+     
+     
  }
+ 
+ function editEquation(eqn)
+ {
+ 	  //Fudge environment variables first
+ 	  var _globalEquationCount = globalEquationCount;
+ 	  var _subEquationCount = subEquationCount;
+ 	  globalEquationCount = eqn;
+ 	  subEquationCount = Number(Equations[eqn-1].length) -1;
+ 	  
+ 		document.getElementById('inputbox-lhs').value = "";
+         document.getElementById('inputbox').value = "";      
+         $('#equation-container').fadeIn(1000);
+         $('#overlay').fadeIn(1300);
+ 		$('#equation-' + eqn+" .equation-button").hide();
+        $('#equation-preview').append($('#equation-'+eqn));
+   
+     //Reset environment variables
+ }
+
 
  function addStep() {
      if (subEquationCount == 0) {
@@ -138,8 +169,13 @@ d=document.createElement('div');
      btn.className = "equation-button";
      btn.innerHTML = "Edit";
      d.appendChild(btn);
+     btn = document.createElement('button');
+     btn.className = "delete-button";
+     btn.innerHTML = "Remove";
+     d.appendChild(btn);
        range.deleteContents();
    // place your span
+     range.insertNode(document.createElement('br'));
    range.insertNode(d);
    range.insertNode(document.createElement('br'));
      $('#equation-container').fadeOut(1000);
@@ -156,8 +192,11 @@ function  refreshEquationNumbers()
 {
 	//delete empty equations first
 	$.each($('.equation'),function(index,obj){
-		if($(obj).text()=="")
+		if($(obj).text()==""){
 		obj.remove();
+		globalEquationCount--;
+		//Equations[index] = new Array();
+		}
 	});
 	
 	$.each($('.equation'),function(index,obj){
@@ -342,7 +381,7 @@ function addAutoReference(element) {
  alert("You selected: " + $.selection());
     
 	if($(parentid + ".mi"+querystring).attr("id")!=null)
-	{ refreshEquationNumbers();
+	{ //refreshEquationNumbers();
 		node=$(parentid + ".mi"+querystring);
 		querystring = ".mi"+querystring;
 	}
@@ -410,7 +449,7 @@ function addAutoReference(element) {
          if (temp != null) {
 
              referenceAlert(temp);
-         } refreshEquationNumbers();
+         } //refreshEquationNumbers();
      })
          .hide()
          .slideToggle(300);
@@ -623,7 +662,10 @@ function postData(path, params) {
      btn.className = "equation-button";
      btn.innerHTML = "Edit";
      d.appendChild(btn);
-     
+     btn = document.createElement('button');
+     btn.className = "delete-button";
+     btn.innerHTML = "Remove";
+     d.appendChild(btn);
      /*
 	  $('.up,.down').hide();
  $('.buttonup').click(function(e)
@@ -637,6 +679,7 @@ function postData(path, params) {
 */
    range.deleteContents();
    // place your span
+         range.insertNode(document.createElement('br'));
    range.insertNode(d);
       range.insertNode(document.createElement('br'));
 

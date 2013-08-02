@@ -76,9 +76,10 @@ else {
 <script src="js/main.js"></script>
 <script src="js/jquery.selection.js"></script>
   <script src="js/jquery.at.caret.min.js"></script>
-<!--<script type="text/javascript" src="./mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script> -->
+<script type="text/javascript" src="./mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script>
 
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script>
+<!--<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script>
+ -->
 </head>
 
 <body onload="body_load()">
@@ -98,15 +99,17 @@ else {
         	  <button onclick="Save();">-save</button>
     
         </div>
-        <div id="reference-tools"> <span onclick="addReference()"> -Done </span> </div>
+       
       </div>
+     
       <div id="symbol-palette">
         <table width="98%" border="0" cellpadding="0" id="symbols">
-          <tr>
+          <tr><!--
             <td onclick="appendFromPaletteToEditor(this)" data-value="x" >`x`</td>
             <td onclick="appendFromPalette(this)" data-value="y">`y`</td>
             <td onclick="appendFromPalette(this)" data-value="z">`z`</td>
             <td onclick="appendFromPalette(this)" data-value="alpha">`alpha`</td>
+           -->
           </tr>
         </table>
       </div>
@@ -160,6 +163,7 @@ else {
 		
       	</div>
       	<div id='statusbox'>	</div>
+      	  <div class = 'qs'><a href="./Mathifold.pdf" target="_blank" >Quick Start Guide ↗</a> </div>
       <!--end of div#editor--> 
     </div>
     <!--end of div#editor-container--> 
