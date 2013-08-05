@@ -4,8 +4,9 @@ var querystring
 var referenceTempArray;
 var tempReferenceStorage = new Array();
 
-///Equation editor variables
-
+///Equation editor environment variables
+var currentStep = 0;
+var currentEquation = 0;
 //End
 
 function body_load() {
@@ -47,74 +48,93 @@ function body_load() {
 ///////////////////////////////////////////Equations///////////////
 
 function loadEditor() {
+	
 	range = window.getSelection().getRangeAt(0);
-
-	document.getElementById('inputbox-lhs').value = "";
+	//document.getElementById('inputbox-lhs').value = "";
 	document.getElementById('inputbox').value = "";
 	globalEquationCount++;
 	subEquationCount = 0;
 	Equations[globalEquationCount - 1] = new Array();
 	$('#equation-container').fadeIn(1000);
 	$('#overlay').fadeIn(1300);
-	// var div = document.createElement("div");
-	// div.id = 'equation-' + globalEquationCount + "-lhs";
-	// div.className = 'lhs';
-	// document.getElementById("equation-preview").appendChild(div);
 	var div = document.createElement("div");
 	div.id = 'equation-' + globalEquationCount + "-" + subEquationCount;
 	div.className = "equation-step";
 	document.getElementById("equation-preview").appendChild(div);
-	//  alert('equation-' + globalEquationCount + "-" + subEquationCount);
-	//	var div = document.createElement("div");
-	//div.id = 'mod-'+globalEquationCount+"-"+subEquationCount;
-	//div.innerHTML="<img class='up-down'  src='img/up.png'  onclick='stepUp("+subEquationCount+");'></img> <img class='up-down'  src='img/down.png'  onclick='stepDown("+subEquationCount+");'></img>";
+	currentStep = subEquationCount;
+	currentEquation = globalEquationCount;
+	
 
+	$('#equation-container').delegate('.equation-step', 'click', function(e) {
+		$('.equation-step').removeClass('editing');
+		$(e.srcElement).parents('.equation-step').toggleClass('editing');
+		var id = $(e.srcElement).parents('.equation-step').attr('id');
+		//alert(id);
+		currentStep = id.replace('equation-'+currentEquation+"-","");
+		// alert(currentStep);
+		e.stopPropagation();
+	});
+	
 }
 
 function editEquation(eqn) {
-	//Fudge environment variables first
-	var _globalEquationCount = globalEquationCount;
-	var _subEquationCount = subEquationCount;
-	globalEquationCount = eqn;
-	subEquationCount = Number(Equations[eqn - 1].length) - 1;
-
-	document.getElementById('inputbox-lhs').value = "";
+	range = window.getSelection().getRangeAt(0);
+	//If it's a folded equation, construct unfolded version. Otherwise, copy existing equation form DOM.
+	currentEquation = eqn;
+	currentStep = Number(Equations[eqn - 1].length) - 1;
 	document.getElementById('inputbox').value = "";
 	$('#equation-container').fadeIn(1000);
 	$('#overlay').fadeIn(1300);
-	$('#equation-' + eqn + " .equation-button").hide();
+	$('#equation-' + eqn + " .equation-button").remove();
+	$('#equation-' + eqn + " .delete-button").remove();
+	if($('#equation-'+eqn+" .up,.down").length==0)
+	{
 	$('#equation-preview').append($('#equation-' + eqn));
+ }
+ else
+ {
+ 	alert('racvhed');
+ 	$('#equation-' + eqn).html("");
+ 	$.each(Equations[eqn-1],function(index,element)
+ 	{
+ 		var e = document.createElement('div');
+ 		e.id= "equation-" + eqn + "-" + index;
+ 		e.innerHTML= "`" + Equations[eqn-1][index] +"`";
+ 		e.className = "equation-step";
+ 		$('#equation-' + eqn).append(e);
+ 	});
+ 	$('#equation-preview').append($('#equation-' + eqn));
+ 	MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+ }
 
-	//Reset environment variables
+
+	$('#equation-container').delegate('.equation-step', 'click', function(e) {
+		$('.equation-step').removeClass('editing');
+		$(e.srcElement).parents('.equation-step').toggleClass('editing');
+		var id = $(e.srcElement).parents('.equation-step').attr('id');
+	//	alert(id);
+		currentStep = id.replace('equation-'+currentEquation+"-","");
+	//	 alert(currentStep);
+	     e.stopPropagation();
+	});
 }
 
 function addStep() {
-	if (subEquationCount == 0) {
-		$('#lhs').hide();
-		$("#non-lhs").show();
-		Equations[globalEquationCount - 1][subEquationCount] = document.getElementById('inputbox-lhs').value;
-	} else {
-		//Store in Eqn DB
-		Equations[globalEquationCount - 1][subEquationCount] = document.getElementById('inputbox').value;
-		// alert(Equations[globalEquationCount - 1][subEquationCount]);
-	}
-	//Housekeeping
+
+	
+	Equations[currentEquation - 1][currentStep] = document.getElementById('inputbox').value;
 	document.getElementById('inputbox').value = "";
-	subEquationCount++;
+	currentStep++;
 	var div = document.createElement("div");
-	div.id = 'equation-' + globalEquationCount + "-" + subEquationCount;
+	div.id = 'equation-' + currentEquation + "-" + currentStep;
 	div.className = "equation-step";
-	document.getElementById("equation-preview").appendChild(div);
-	// alert('equation-' + globalEquationCount + "-" + subEquationCount);
-	//var div = document.createElement("div");
-	//	div.id = 'mod-'+globalEquationCount+"-"+subEquationCount;
-	//div.innerHTML="<img class='up-down'  src='img/up.png'  onclick='stepUp("+subEquationCount+");'></img> <img class='up-down'  src='img/down.png'  onclick='stepDown("+subEquationCount+");'></img>";
 	document.getElementById("equation-preview").appendChild(div);
 }
 
 function update() {
-
-	document.getElementById('equation-' + globalEquationCount + "-" + subEquationCount).innerHTML = "`" + document.getElementById('inputbox').value + "`";
+    var temp = $('#equation-' + currentEquation + "-" + currentStep+" .up,.down");
+	document.getElementById('equation-' + currentEquation + "-" + currentStep).innerHTML = "`" + document.getElementById('inputbox').value + "`" ;
+	$('#equation-' + currentEquation + "-" + currentStep).append(temp);
 	MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 }
 
@@ -124,29 +144,27 @@ function rerender() {
 
 }
 
-function updatelhs() {
-	document.getElementById('equation-' + globalEquationCount + "-" + subEquationCount).innerHTML = "`" + document.getElementById('inputbox-lhs').value + "`";
-	// document.getElementById('equation-' + globalEquationCount + "-lhs").innerHTML = "`" + document.getElementById('inputbox-lhs').value + "`";
-	MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-}
+/*
+ function updatelhs() {
+ document.getElementById('equation-' + globalEquationCount + "-" + subEquationCount).innerHTML = "`" + document.getElementById('inputbox-lhs').value + "`";
+ // document.getElementById('equation-' + globalEquationCount + "-lhs").innerHTML = "`" + document.getElementById('inputbox-lhs').value + "`";
+ MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+ }
+ */
 
 function appendFromPalette(arg) {
 
-	if (subEquationCount == 0) {
-		document.getElementById('inputbox-lhs').value = document.getElementById('inputbox-lhs').value + arg.getAttribute("data-value") + " ";
-		updatelhs();
-	} else {
-		document.getElementById('inputbox').value = document.getElementById('inputbox').value + arg.getAttribute("data-value") + " ";
-		update();
-	}
+	document.getElementById('inputbox').value = document.getElementById('inputbox').value + arg.getAttribute("data-value") + " ";
+	update();
+
 }
 
 function appendEquation() {
-	Equations[globalEquationCount - 1][subEquationCount] = document.getElementById('inputbox').value;
-
+	Equations[currentEquation - 1][currentStep] = document.getElementById('inputbox').value;
+	$('.equation-step').removeClass('editing');
 	d = document.createElement('div');
 	d.innerHTML = document.getElementById('equation-preview').innerHTML;
-	d.id = "equation-" + globalEquationCount;
+	d.id = "equation-" + currentEquation;
 	d.className = "equation";
 	var btn = document.createElement('button');
 	btn.className = "equation-button";
@@ -166,8 +184,12 @@ function appendEquation() {
 	document.execCommand("enableObjectResizing", false, false);
 	document.getElementById('equation-preview').innerHTML = "";
 	document.getElementById('inputbox').value = "";
-	checkForNewReference('equation-' + globalEquationCount);
+	checkForNewReference('equation-' + currentEquation);
 	refreshEquationNumbers();
+	
+	//reset environment
+	currentEquation =0;
+	currentStep = 0;
 }
 
 function refreshEquationNumbers() {
@@ -440,7 +462,7 @@ function getSelectionHtml() {
 		sel = window.getSelection();
 		seltext = sel.toString();
 		if (sel.rangeCount) {
-			range = sel.getRangeAt(0);
+			range = sel.getRangeAt(0);$('.equation-step').removeClass('editing');
 			node = sel.anchorNode;
 		}
 	} else if (document.selection && document.selection.createRange) {
@@ -565,23 +587,24 @@ function postData(path, params) {
 
 function foldEquation() {
 
-	Equations[globalEquationCount - 1][subEquationCount] = document.getElementById('inputbox').value;
+	Equations[currentEquation - 1][currentStep] = document.getElementById('inputbox').value;
 	$('#equation-container').fadeOut(500);
 	$('#folding-container').fadeIn(500);
+	$('.equation-step').removeClass('editing');
 	//Use Equations[globalEquationCount-1] array to get the set of steps to fold, store appropriately in a 2d array called Folds, which i will post to php with the other arrays
-
+	
 	var d = document.createElement('div');
-	d.innerHTML = "`" + Equations[globalEquationCount - 1][0] + "`";
-	d.id = 'equation-' + globalEquationCount + "-0";
+	d.innerHTML = "`" + Equations[currentEquation - 1][0] + "`";
+	d.id = 'equation-' + currentEquation + "-0";
 	d.className = 'lhs equation-step';
 	$('#folding-equation-container').append(d);
-	d = chooseFold(1, subEquationCount, "first", globalEquationCount - 1);
+	d = chooseFold(1, Equations[currentEquation-1].length-1, "first", currentEquation - 1);
 	d.className = "rhs equation-step";
 	$('#folding-equation-container').append(d);
 	MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 	d = document.createElement('div');
 	d.innerHTML = $('#folding-equation-container').html();
-	d.id = "equation-" + globalEquationCount;
+	d.id = "equation-" + currentEquation;
 	d.className = "equation";
 	var btn = document.createElement('button');
 	btn.className = "equation-button";
@@ -616,7 +639,7 @@ function foldEquation() {
 	document.execCommand("enableObjectResizing", false, false);
 	document.getElementById('equation-preview').innerHTML = "";
 	document.getElementById('inputbox').value = "";
-	checkForNewReference("equation-" + globalEquationCount);
+	checkForNewReference("equation-" + currentEquation);
 	$('.buttonup,.buttondown').hide();
 	refreshEquationNumbers();
 }

@@ -96,6 +96,7 @@ function init()
 {	  	
 
 $('.equation-button').remove();
+$('.delete-button').remove();
 	  var newIframe = document.getElementById('reference-container');	 
 	  var content = "<!DOCTYPE html><html><head> </head>"  ;
 	   var content = content  + '<body>' ;

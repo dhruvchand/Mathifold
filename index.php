@@ -153,7 +153,7 @@ else {
         </div>
       </div>
       <!--end of div#toolbar-->
-      <div name="editor" id="editor" contenteditable="true" onmouseout="getSelectionHtml()" > 
+      <div name="editor" id="editor" contenteditable="true" onmouseout="getSelectionHtml()"  > 
       	<?php
       	if($html_code!=null){
       	echo $html_code;
@@ -207,12 +207,15 @@ else {
         <tr>
       </table>
     </div>
-    <span onclick="addStep();" style="cursor:pointer;">+step</span> </div>
-  <div   id="equation-preview"> </div>
+    <span onclick="addStep();" style="cursor:pointer;" id="plus-step">+step</span> </div>
+  <div   id="equation-preview" > </div>
+  <!--
   <div id="lhs">
     <p> Enter the LHS</p>
     <input type="text"  onkeypress="updatelhs()" id="inputbox-lhs" value=""  />
   </div>
+  
+  -->
   <div id="non-lhs">
     <input type="text"  onkeypress="update()" id="inputbox" value=""  />
     <button id="submitinput" value="Done" onclick="appendEquation()">Done</button>
