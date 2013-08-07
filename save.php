@@ -31,8 +31,8 @@ $key = $_POST["Key"];
 
 try {  
   # MySQL with PDO_MYSQL  
- $DBH = new PDO("mysql:host=localhost;dbname=Mathifold", "root", "panthera");  
- // $DBH = new PDO("mysql:host=mysql4.000webhost.com;dbname=a9466681_math", "a9466681_math", "math1234");  
+ //$DBH = new PDO("mysql:host=localhost;dbname=Mathifold", "root", "panthera");  
+  $DBH = new PDO("mysql:host=mysql4.000webhost.com;dbname=a9466681_math", "a9466681_math", "math1234");  
     $DBH->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );  
 	
 	if($_POST['Update'] == "0")

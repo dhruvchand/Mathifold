@@ -49,19 +49,19 @@ for($k=0;$k<$textreferencecount;$k++)
 
 
 <title><?php echo $title;?></title>
-
+<!--
 <link rel='stylesheet' href='js/jquery-ui/themes/base/jquery-ui.css' />
 <script src='js/jquery-1.8.3.min.js'></script>
 <script src='js/jquery-ui/ui/jquery-ui.js'></script>
 <script type='text/javascript' src='mathjax/MathJax.js?config=AM_HTMLorMML'></script>
 <script src='js/jquery.scrollTo.min.js'></script>
-<!--
+-->
 <link rel='stylesheet' href='http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css' />
 <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
 <script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js'></script>
 <script type='text/javascript' src='http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML'></script>
 <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/1.4.3/jquery.scrollTo.min.js'></script>
--->
+
 
 <style type='text/css'>
 .reference:hover

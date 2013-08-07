@@ -5,8 +5,8 @@ if($_POST["Key"]!=null){
   $key = $_POST["Key"];
   $name = $_POST["Title"];
 
-  //$DBH = new PDO("mysql:host=mysql4.000webhost.com;dbname=a9466681_math", "a9466681_math", "math1234");  
-   $DBH = new PDO("mysql:host=localhost;dbname=Mathifold", "root", "panthera");  
+  $DBH = new PDO("mysql:host=mysql4.000webhost.com;dbname=a9466681_math", "a9466681_math", "math1234");  
+  // $DBH = new PDO("mysql:host=localhost;dbname=Mathifold", "root", "panthera");  
     $DBH->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );  
 	
 	$STH = $DBH->prepare("SELECT * FROM Documents WHERE `Key` = :k AND DocName = :n"); 
@@ -76,10 +76,10 @@ else {
 <script src="js/main.js"></script>
 <script src="js/jquery.selection.js"></script>
   <script src="js/jquery.at.caret.min.js"></script>
-<script type="text/javascript" src="./mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script>
+<!--<script type="text/javascript" src="./mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script>-->
 
-<!--<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script>
- -->
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script>
+
 </head>
 
 <body onload="body_load()">
