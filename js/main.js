@@ -50,20 +50,28 @@ function body_load() {
 function loadEditor() {
 
 	range = window.getSelection().getRangeAt(0);
-	//document.getElementById('inputbox-lhs').value = "";
 	document.getElementById('inputbox').value = "";
 	globalEquationCount++;
 	subEquationCount = 0;
+	currentStep = subEquationCount;
+	currentEquation = globalEquationCount;
+	
 	Equations[globalEquationCount - 1] = new Array();
 	$('#equation-container').fadeIn(1000);
 	$('#overlay').fadeIn(1300);
+	
+	var div = document.createElement("div");
+	div.id = 'equation-' + globalEquationCount;
+	div.className = "equation";
+	document.getElementById("equation-preview").appendChild(div);
+	
 	var div = document.createElement("div");
 	div.id = 'equation-' + globalEquationCount + "-" + subEquationCount;
-	div.className = "equation-step";
-	document.getElementById("equation-preview").appendChild(div);
-	currentStep = subEquationCount;
-	currentEquation = globalEquationCount;
-
+	div.className = "equation-step editing";
+	document.getElementById('equation-' + globalEquationCount).appendChild(div);
+	
+	
+    $('#equation-' + currentEquation + "-"+currentStep).toggleClass('editing');
 	$('#equation-container').delegate('.equation-step', 'click', function(e) {
 		$('.equation-step').removeClass('editing');
 		$(e.target).parents('.equation-step').toggleClass('editing');
@@ -84,22 +92,23 @@ function editEquation(eqn) {
 	document.getElementById('inputbox').value = "";
 	$('#equation-container').fadeIn(1000);
 	$('#overlay').fadeIn(1300);
-	$('#equation-' + eqn + " .equation-button").remove();
-	$('#equation-' + eqn + " .delete-button").remove();
-	if ($('#equation-' + eqn + " .up,.down").length == 0) {
-		$('#equation-preview').append($('#equation-' + eqn));
+	$('#equation-' + currentEquation + " .equation-button").remove();
+	$('#equation-' + currentEquation + " .delete-button").remove();
+	if ($('#equation-' + currentEquation + " .up,.down").length == 0) {
+		$('#equation-preview').append($('#equation-' + currentEquation));
 	} else {
-		$('#equation-' + eqn).html("");
-		$.each(Equations[eqn - 1], function(index, element) {
+		$('#equation-' + currentEquation).html("");
+		$.each(Equations[currentEquation - 1], function(index, element) {
 			var e = document.createElement('div');
-			e.id = "equation-" + eqn + "-" + index;
-			e.innerHTML = "`" + Equations[eqn-1][index] + "`";
+			e.id = "equation-" + currentEquation + "-" + index;
+			e.innerHTML = "`" + Equations[currentEquation-1][index] + "`";
 			e.className = "equation-step";
-			$('#equation-' + eqn).append(e);
+			$('#equation-' + currentEquation).append(e);
 		});
-		$('#equation-preview').append($('#equation-' + eqn));
+		$('#equation-preview').append($('#equation-' + currentEquation));
 		MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 	}
+	$('#equation-' + currentEquation + "-"+currentStep).toggleClass('editing');
 
 	$('#equation-container').delegate('.equation-step', 'click', function(e) {
 		$('.equation-step').removeClass('editing');
@@ -116,11 +125,13 @@ function addStep() {
 
 	Equations[currentEquation - 1][currentStep] = document.getElementById('inputbox').value;
 	document.getElementById('inputbox').value = "";
-	currentStep++;
+	currentStep = Equations[currentEquation - 1].length;
 	var div = document.createElement("div");
 	div.id = 'equation-' + currentEquation + "-" + currentStep;
 	div.className = "equation-step";
-	document.getElementById("equation-preview").appendChild(div);
+	document.getElementById('equation-' + currentEquation).appendChild(div);
+	$('.equation-step').removeClass('editing');
+	 $('#equation-' + currentEquation + "-"+currentStep).toggleClass('editing');
 }
 
 function update() {
@@ -154,10 +165,8 @@ function appendFromPalette(arg) {
 function appendEquation() {
 	Equations[currentEquation - 1][currentStep] = document.getElementById('inputbox').value;
 	$('.equation-step').removeClass('editing');
-	d = document.createElement('div');
-	d.innerHTML = document.getElementById('equation-preview').innerHTML;
-	d.id = "equation-" + currentEquation;
-	d.className = "equation";
+	d = document.getElementById('equation-'+currentEquation);
+	
 	var btn = document.createElement('button');
 	btn.className = "equation-button";
 	btn.innerHTML = "Edit";
