@@ -24,12 +24,12 @@ function body_load() {
 	});
 	$('#editor').delegate('.equation-button', 'click', function(e) {
 
-		editEquation(e.srcElement.parentElement.id.replace("equation-", ""));
+		editEquation(e.target.parentElement.id.replace("equation-", ""));
 	});
 
 	$('#editor').delegate('.delete-button', 'click', function(e) {
 
-		e.srcElement.parentElement.innerHTML = "";
+		e.target.parentElement.innerHTML = "";
 		refreshEquationNumbers();
 	});
 
@@ -48,7 +48,7 @@ function body_load() {
 ///////////////////////////////////////////Equations///////////////
 
 function loadEditor() {
-	
+
 	range = window.getSelection().getRangeAt(0);
 	//document.getElementById('inputbox-lhs').value = "";
 	document.getElementById('inputbox').value = "";
@@ -63,18 +63,17 @@ function loadEditor() {
 	document.getElementById("equation-preview").appendChild(div);
 	currentStep = subEquationCount;
 	currentEquation = globalEquationCount;
-	
 
 	$('#equation-container').delegate('.equation-step', 'click', function(e) {
 		$('.equation-step').removeClass('editing');
-		$(e.srcElement).parents('.equation-step').toggleClass('editing');
-		var id = $(e.srcElement).parents('.equation-step').attr('id');
+		$(e.target).parents('.equation-step').toggleClass('editing');
+		var id = $(e.target).parents('.equation-step').attr('id');
 		//alert(id);
-		currentStep = id.replace('equation-'+currentEquation+"-","");
+		currentStep = id.replace('equation-' + currentEquation + "-", "");
 		// alert(currentStep);
 		e.stopPropagation();
 	});
-	
+
 }
 
 function editEquation(eqn) {
@@ -87,41 +86,34 @@ function editEquation(eqn) {
 	$('#overlay').fadeIn(1300);
 	$('#equation-' + eqn + " .equation-button").remove();
 	$('#equation-' + eqn + " .delete-button").remove();
-	if($('#equation-'+eqn+" .up,.down").length==0)
-	{
-	$('#equation-preview').append($('#equation-' + eqn));
- }
- else
- {
- 	alert('racvhed');
- 	$('#equation-' + eqn).html("");
- 	$.each(Equations[eqn-1],function(index,element)
- 	{
- 		var e = document.createElement('div');
- 		e.id= "equation-" + eqn + "-" + index;
- 		e.innerHTML= "`" + Equations[eqn-1][index] +"`";
- 		e.className = "equation-step";
- 		$('#equation-' + eqn).append(e);
- 	});
- 	$('#equation-preview').append($('#equation-' + eqn));
- 	MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
- }
-
+	if ($('#equation-' + eqn + " .up,.down").length == 0) {
+		$('#equation-preview').append($('#equation-' + eqn));
+	} else {
+		$('#equation-' + eqn).html("");
+		$.each(Equations[eqn - 1], function(index, element) {
+			var e = document.createElement('div');
+			e.id = "equation-" + eqn + "-" + index;
+			e.innerHTML = "`" + Equations[eqn-1][index] + "`";
+			e.className = "equation-step";
+			$('#equation-' + eqn).append(e);
+		});
+		$('#equation-preview').append($('#equation-' + eqn));
+		MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+	}
 
 	$('#equation-container').delegate('.equation-step', 'click', function(e) {
 		$('.equation-step').removeClass('editing');
-		$(e.srcElement).parents('.equation-step').toggleClass('editing');
-		var id = $(e.srcElement).parents('.equation-step').attr('id');
-	//	alert(id);
-		currentStep = id.replace('equation-'+currentEquation+"-","");
-	//	 alert(currentStep);
-	     e.stopPropagation();
+		$(e.target).parents('.equation-step').toggleClass('editing');
+		var id = $(e.target).parents('.equation-step').attr('id');
+		//	alert(id);
+		currentStep = id.replace('equation-' + currentEquation + "-", "");
+		//	 alert(currentStep);
+		e.stopPropagation();
 	});
 }
 
 function addStep() {
 
-	
 	Equations[currentEquation - 1][currentStep] = document.getElementById('inputbox').value;
 	document.getElementById('inputbox').value = "";
 	currentStep++;
@@ -132,8 +124,8 @@ function addStep() {
 }
 
 function update() {
-    var temp = $('#equation-' + currentEquation + "-" + currentStep+" .up,.down");
-	document.getElementById('equation-' + currentEquation + "-" + currentStep).innerHTML = "`" + document.getElementById('inputbox').value + "`" ;
+	var temp = $('#equation-' + currentEquation + "-" + currentStep + " .up,.down");
+	document.getElementById('equation-' + currentEquation + "-" + currentStep).innerHTML = "`" + document.getElementById('inputbox').value + "`";
 	$('#equation-' + currentEquation + "-" + currentStep).append(temp);
 	MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 }
@@ -186,9 +178,9 @@ function appendEquation() {
 	document.getElementById('inputbox').value = "";
 	checkForNewReference('equation-' + currentEquation);
 	refreshEquationNumbers();
-	
+
 	//reset environment
-	currentEquation =0;
+	currentEquation = 0;
 	currentStep = 0;
 }
 
@@ -462,7 +454,8 @@ function getSelectionHtml() {
 		sel = window.getSelection();
 		seltext = sel.toString();
 		if (sel.rangeCount) {
-			range = sel.getRangeAt(0);$('.equation-step').removeClass('editing');
+			range = sel.getRangeAt(0);
+			$('.equation-step').removeClass('editing');
 			node = sel.anchorNode;
 		}
 	} else if (document.selection && document.selection.createRange) {
@@ -592,13 +585,13 @@ function foldEquation() {
 	$('#folding-container').fadeIn(500);
 	$('.equation-step').removeClass('editing');
 	//Use Equations[globalEquationCount-1] array to get the set of steps to fold, store appropriately in a 2d array called Folds, which i will post to php with the other arrays
-	
+
 	var d = document.createElement('div');
 	d.innerHTML = "`" + Equations[currentEquation - 1][0] + "`";
 	d.id = 'equation-' + currentEquation + "-0";
 	d.className = 'lhs equation-step';
 	$('#folding-equation-container').append(d);
-	d = chooseFold(1, Equations[currentEquation-1].length-1, "first", currentEquation - 1);
+	d = chooseFold(1, Equations[currentEquation - 1].length - 1, "first", currentEquation - 1);
 	d.className = "rhs equation-step";
 	$('#folding-equation-container').append(d);
 	MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
