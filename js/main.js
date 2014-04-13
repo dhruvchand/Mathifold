@@ -5,21 +5,23 @@ var referenceTempArray;
 var tempReferenceStorage = new Array();
 var invalidReferences = new Array();
 var invalidTextReferences = new Array();
-
+var autoSave;
 ///Equation editor environment variables
 var currentStep = 0;
 var currentEquation = 0;
+var title;
+var figureNo = 1;
 //End
 
 function body_load() {
-	setTimeout("$('#title').animate({fontSize:'32px',marginTop:'0px',opacity:1},1000); $('#loading').fadeOut(700);$('#wrapper').fadeIn(700);", 1000);
+	setTimeout("$('#main-title').animate({fontSize:'32px',marginTop:'0px',opacity:1},1000); $('#loading').fadeOut(700);$('#wrapper').fadeIn(700);", 1000);
 	$("#editor").keyup(function(e) {
 
 		if (e.which == 192 && $('#editor').html().match(new RegExp("`", "gi")) != null) {
 	
 			if ($('#editor').html().match(new RegExp("`", "gi")).length % 2 == 0) {
 				
-		
+	///	alert('jkj');
 				setTimeout(function()
 				{
 					document.getElementById('editor').innerHTML=document.getElementById('editor').innerHTML.replace($('#editor').html().match('`.+`')[0],"<div class='inline-math' id='inline-eqn'>"+$('#editor').html().match('`.+`')[0]+"</div>")
@@ -27,7 +29,7 @@ function body_load() {
 					$("#editor").append("<br/>");
 					$('#inline-eqn').focusEnd();
 					$("#inline-eqn").attr("id","");
-				}, 10);
+				}, 100);
 			}
 
 		}
@@ -35,6 +37,8 @@ function body_load() {
 
 	$('#clickme').click(function(e) {
 		$('#clickme').remove();
+		
+	autoSaveInterval = setInterval(autoSave, 10000);
 	});
 
 	$('#editor').delegate('.equation-button', 'click', function(e) {
@@ -63,6 +67,17 @@ function body_load() {
       collapsible: true,
       speed:10
     });
+	
+	//AutoSave Intervals
+	if(localStorage.autosavedata!=null)
+{
+		$('#restore').show();
+	
+
+
+//Javascript fallback 
+
+}
 
 }
 
@@ -101,6 +116,7 @@ function loadEditor() {
 		$('#equation-status').text("Editing equation " + currentEquation + " step " + (Number(currentStep) + 1));
 		e.stopPropagation();
 	});
+	
 
 }
 
@@ -274,6 +290,7 @@ function refreshEquationNumbers() {
 		}
 	});
 
+
 	$.each($('.equation'), function(index, obj) {
 
 		var EqnNo = $(obj).attr('id');
@@ -331,6 +348,13 @@ function refreshEquationNumbers() {
 
 ///////////////////////Referencing Logic////////////////////////////
 
+function genref()
+{
+	
+	
+	
+}
+
 function EquationReference() {
 
 	var eqnnumber = prompt("Enter the equation number.");
@@ -339,6 +363,20 @@ function EquationReference() {
 	div.dataset.pointsto = eqnnumber;
 	div.className = "equation-reference";
 	div.innerHTML = " equation " + eqnnumber;
+	range.deleteContents();
+	// place your span
+	range.insertNode(div);
+}
+}
+
+function FigureReference() {
+
+	var fig = prompt("Enter the figure number.");
+	if(fig!=null){
+	var div = document.createElement("span");
+	div.dataset.pointsto = fig;
+	div.className = "figure-reference";
+	div.innerHTML = " figure " + fig;
 	range.deleteContents();
 	// place your span
 	range.insertNode(div);
@@ -437,7 +475,18 @@ function newReference() {
 	//  var parentid = "#"+$(".math",$.selection('html')).attr('id')+" ";
 
 	if ($(getSelectionParentElement()).parents('.math').attr('id') == undefined && $($.selection("html")).filter('.MathJax').attr('id') == undefined && $(getSelectionParentElement()).parents('.MathJax').attr('id') == undefined) {
-		alert('There was an error in processing your selection, please try selecting again.');
+		
+		
+		if( $($.selection("html")).attr("class")!="mi"&& $($.selection("html")).find(".mi").length==0){		
+	newTextReference();
+		}
+		else
+		{
+			alert("There was an error processing your selection, please try again.");
+		}
+		
+		
+		
 	} else {
 		var parentid = "#" + $(getSelectionParentElement()).parents('.math').attr('id') + " ";
 		if ($(getSelectionParentElement()).parents('.math').attr('id') == undefined)
@@ -572,7 +621,7 @@ function getSelectionHtml() {
 
 }
 
-function fixReferences() {
+function fixReferences(fn) {
 	var str = "";
 
 	$.each(invalidReferences, function(index, reference) {
@@ -597,7 +646,7 @@ function fixReferences() {
 	var bool2 = str != "" ? confirm("The reference target for the text chunks: " + str + " \n has/have been removed. Click OK to continue exporting without a reference for " + str + " or click cancel to go back to the editor.") : 1;
 
 	if (bool1 && bool2) {
-		Export("force");
+		fn("force");
 	} else {
 		return;
 	}
@@ -621,13 +670,13 @@ function getSelectionParentElement() {
 
 //////////////////////////////////////////Save and Export Logic//////////
 
-function Export(force) {
+function Save(force) {
 	if (checkReferences() == 0 || force == "force") {
-		if (storename != undefined) {
-			var title = storename;
-		} else {
-			var title = prompt("Enter the title of your Mathifold document?");
+	if (title == undefined) {
+			 title = prompt("Enter the title of your Mathifold document.");
 		}
+		if(title!=null){
+
 		var html = document.getElementById('editor').innerHTML;
 		dataObj = {
 
@@ -638,22 +687,65 @@ function Export(force) {
 			"ReferenceCount" : referenceCount,
 			"TextReferenceCount" : TextreferenceCount,
 			"TextReferences" : JSON.stringify(TextReferences),
+			"FigureCount" : figureNo,
 			"Title" : title
 		};
-
-		postData("./process.php", dataObj);
+		
+		postData("./save.php", dataObj);
+		}
 	} else {
-		fixReferences();
+		fixReferences(arguments.callee);
 	}
+}
+
+function autoSave()
+{
+	var currentdate = new Date(); 
+var time = currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+		var html = document.getElementById('editor').innerHTML;
+		dataObj = {
+
+			"Equations" : JSON.stringify(Equations),
+			"References" : JSON.stringify(References),
+			"HTML" : html,
+			"EquationCount" : globalEquationCount,
+			"ReferenceCount" : referenceCount,
+			"TextReferenceCount" : TextreferenceCount,
+			"TextReferences" : JSON.stringify(TextReferences),
+			"FigureCount" : figureNo,
+			"SubEquationCount" : subEquationCount
+		};
+		
+		localStorage.autosavedata = JSON.stringify(dataObj);
+		$('#statusbox').text("Auto-saved at "+time);
+	
+}
+
+function autoRestore()
+{
+		var data = JSON.parse(localStorage.autosavedata);
+ Equations =JSON.parse(data.Equations);
+ References = JSON.parse(data.References);
+ TextReferences = JSON.parse(data.TextReferences);
+ globalEquationCount = data.globalEquationCount==null?1:data.globalEquationCount ;
+ referenceCount =  data.ReferenceCount==null?0:data.ReferenceCount;
+ TextreferenceCount = data.TextReferenceCount==null?0:data.TextReferenceCount;
+figureNo = data.FigureCount==null?1:data.FigureCount;
+ subEquationCount = data.SubEquationCount==null?0:data.SubEquationCount;
+
+$('#editor').html(data.HTML);
+MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+
 }
 
 function ExportPrint(force) {
 	if (checkReferences() == 0 || force == "force") {
-		if (storename != undefined) {
-			var title = storename;
-		} else {
-			var title = prompt("Enter the title of your Mathifold document?");
+		if (title == undefined) {
+			 title = prompt("Enter the title of your Mathifold document.");
 		}
+		if(title!=null){
 		var html = document.getElementById('editor').innerHTML;
 		dataObj = {
 
@@ -665,62 +757,29 @@ function ExportPrint(force) {
 			"TextReferenceCount" : TextreferenceCount,
 			"TextReferences" : JSON.stringify(TextReferences),
 			"Title" : title,
+			"FigureCount" : figureNo,
 			"isPrint":true
 		};
 
 		postData("./process.php", dataObj);
+		}
 	} else {
-		fixReferences();
+		fixReferences(arguments.callee);
 	}
 }
 
 function Open() {
 
-	var title = prompt("Enter the title of your Mathifold document?");
-	var key = prompt("Enter the passkey you used for saving your Mathifold document.");
-	dataObj = {
-		"Title" : title,
-		"Key" : key
-	};
-
-	postData("./index.php", dataObj);
+			var form = document.getElementById("file-form");
+			var hiddenField = document.createElement("input");
+			hiddenField.setAttribute("type", "hidden");
+			hiddenField.setAttribute("name", "open");
+			hiddenField.setAttribute("value", "true");
+			form.appendChild(hiddenField);
+			
+	 form.submit();
 }
 
-function Save() {
-
-	if (storename != undefined) {
-		var title = storename;
-		var key = storekey;
-		var update = 1;
-	} else {
-		var title = prompt("What is that title of your Mathifold document?");
-		var key = prompt("Enter the passkey you used saving your Mathifold document.");
-		var update = 0;
-	}
-
-	var html = document.getElementById('editor').innerHTML;
-	dataObj = {
-
-		"Equations" : JSON.stringify(Equations),
-		"References" : JSON.stringify(References),
-		"HTML" : html,
-		"EquationCount" : globalEquationCount,
-		"ReferenceCount" : referenceCount,
-		"TextReferenceCount" : TextreferenceCount,
-		"TextReferences" : JSON.stringify(TextReferences),
-		"Title" : title,
-		"Key" : key,
-		"Update" : update
-	};
-
-	jQuery.post("./save.php", dataObj, function() {
-		alert('Saved.');
-		storename = title;
-		storekey = key;
-		var update = 1;
-	});
-
-}
 
 function postData(path, params) {
 	method = "post";

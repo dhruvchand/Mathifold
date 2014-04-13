@@ -30,7 +30,7 @@ button
 
 	background-color: rgba(0,0,0,0.2);
 	min-height: 200px;
-	max-height: 500px;
+	max-height: 370px;
 	height: 80%;
 	overflow: auto;
 	box-shadow: 0px 0px 2px rgba(0,0,0,0.5);
@@ -57,7 +57,7 @@ margin-top:10px;
 	border-radius: 3px;
 	padding-left: 3px;
 }
-#title {
+#main-title {
 	text-align: center;
 	font-family: 'Raleway', sans-serif;
 	font-size: 72px;
@@ -240,6 +240,10 @@ button:active {
 }
 
 .equation-reference {
+	color: #0000BB;
+}
+
+.figure-reference {
 	color: #0000BB;
 }
 
@@ -715,4 +719,12 @@ cursor: pointer;
 {
 	padding:5px;
 }
+
+.figure{
+	border:solid 1px rgba(255,255,255,0.6);
+	display:inline-block;
+	padding:3px;
+}
+.figure img{
+	max-width: 500px;
 }

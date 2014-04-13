@@ -85,7 +85,11 @@
 				$.each(files, function (idx, fileInfo) {
 					if (/^image\//.test(fileInfo.type)) {
 						$.when(readFileIntoDataUrl(fileInfo)).done(function (dataUrl) {
-							execCommand('insertimage', dataUrl);
+							//execCommand('insertimage', dataUrl);
+							insertImg(dataUrl);
+							console.log(dataUrl);
+							
+							
 						}).fail(function (e) {
 							options.fileUploadError("file-reader", e);
 						});
@@ -198,3 +202,33 @@
 		fileUploadError: function (reason, detail) { console.log("File upload error", reason, detail); }
 	};
 }(window.jQuery));
+
+
+function insertImg(img) {
+	if(range!=null){
+range.deleteContents();
+		
+		var image = document.createElement('img');
+		var div = document.createElement('div');
+		var span = document.createElement('span');
+		
+		span.innerHTML = "Figure "+figureNo + ": " + prompt('Enter a caption for the figure');
+		div.id = 'figure-'+figureNo;
+		div.appendChild(image);
+		div.appendChild(document.createElement('br'));
+		div.appendChild(span);
+		
+		div.className='figure';
+		image.src = img;
+		range.insertNode(document.createElement('br'));
+		
+		range.insertNode(div);
+range.insertNode(document.createElement('br'));
+		
+		figureNo++;
+	}
+	else
+	{
+		alert('Error inserting image at cursor, please try again');
+	}
+};

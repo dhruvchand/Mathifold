@@ -1,12 +1,26 @@
 <?php
+
+function DOMinnerHTML(DOMNode $element) 
+{ 
+    $innerHTML = ""; 
+    $children  = $element->childNodes;
+
+    foreach ($children as $child) 
+    { 
+        $innerHTML .= $element->ownerDocument->saveHTML($child);
+    }
+
+     return $innerHTML; 
+} 
+/*
 if ($_POST["Key"] != null) {
 	try {
 		# MySQL with PDO_MYSQL
 		$key = $_POST["Key"];
 		$name = $_POST["Title"];
-		//$DBH = new PDO("mysql:host=mysql4.000webhost.com;dbname=a9466681_math", "a9466681_math", "math1234");
+		$DBH = new PDO("mysql:host=mysql4.000webhost.com;dbname=a9466681_math", "a9466681_math", "math1234");
 		$DBH = new PDO("mysql:host=localhost;dbname=Mathifold", "root", "panthera");
-		$DBH -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		//$DBH -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		$STH = $DBH -> prepare("SELECT * FROM Documents WHERE `Key` = :k AND DocName = :n");
 		$STH -> execute(array("k" => $key, "n" => $name));
 		$result = $STH -> fetch(PDO::FETCH_OBJ);
@@ -22,7 +36,64 @@ if ($_POST["Key"] != null) {
 		echo $e -> getMessage();
 	}
 }
+  */
+  
+
+
+  
+if( $_POST["open"] == "true"){
+ echo $_POST["upload"];
+ if ($_FILES["upload"]["error"] > 0)
+  {
+  echo "Error: " . $_FILES["upload"]["error"] . "<br>";
+  }
+else
+  {
+	  
+	  $filedata = html_entity_decode( file_get_contents($_FILES['upload']['tmp_name']));
+ preg_match("/Mathifold Data.*/",$filedata,$matches);
+ if($matches[0] == "") 
+ {
+	 die( "This is not a valid Mathifold document.");
+ }
+ $data = preg_replace("/-->/","", $matches[0]);
+  $data = preg_replace("/'/","", $data);
+ $data = unserialize( base64_decode(preg_replace("/Mathifold Data :/","", $data)));
+ 
+ // 
+$title = $data["title"];
+$equations = $data["equations"];
+$references = $data["references"];
+$textreferences = $data["textreferences"];
+
+$equationcount = $data["equationCount"]==""?0:$data["equationCount"];
+$referencecount = $data["referencecount"]==""?0:$data["referencecount"];
+$textreferencecount = $data["textreferencecount"]==""?0:$data["textreferencecount"];
+$subequationcount = $data["subequationcount"]==""?0:$data["subequationcount"];
+$figurecount = $data["FigureCount"]==""?0:$data["FigureCount"];
+
+ //echo $filedata;
+
+ $DOM = new DOMDocument('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">;');
+   $DOM->loadHTML($filedata);
+
+$xpath = new DOMXPath( $DOM );
+  $tag = $xpath->query( "//*[@id='mathifold-container']" ); 
+
+$tag = $tag->item(0);
+
+
+//$tag = $DOM->getElementById("mathifold-container");
+$html_data = DOMinnerHTML($tag);
+
+  }
+}
+
 ?>
+
+
+
+
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -31,44 +102,52 @@ if ($_POST["Key"] != null) {
 		<title>Mathifold Home</title>
 		<link rel="stylesheet" href="css/style.css" />
 		<link href='http://fonts.googleapis.com/css?family=Raleway:200' rel='stylesheet' type='text/css'>
-		<link rel="stylesheet" href="css/bootstrap.css" />
 
 		<?php echo '<script type="text/javascript">
-var storename ;
-var storekey ;
+
 </script>';
-	if ($_POST["Key"] != null) {
+	if ($_POST["open"] == "true") {
 		echo "
 <script type='text/javascript'>
 //Environment Variables
+var title = \"$title\";
 var Equations = JSON.parse('$equations');
 var References = JSON.parse('$references');
 var TextReferences = JSON.parse('$textreferences');
-var globalEquationCount =  $equationCount ;
+var globalEquationCount = $equationcount ;
 var referenceCount =  $referencecount;
-var TextreferenceCount =  $textreferencecount;
+var TextreferenceCount = $textreferencecount;
+var subEquationCount = $subequationcount;
+var figureNo = $FigureCount;
 
-storename = '$name';
-storekey = '$key';
+//Javascript fallback 
+
 
 </script>
 ";
 	} else {
 		echo '<script src="js/data.js"></script>';
+
 	}
 		?>
-		<script src="js/jquery-1.8.3.min.js"></script>
+		 <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
 		<script src="js/main.js"></script>
 		<script src="js/jquery.selection.js"></script>
 		<script src="js/jquery.at.caret.min.js"></script>
-		<script src="js/bootstrap.min.js"></script>
-		<script src="js/jquery.hotkeys.js"></script>
-		<script src="js/bootstrap-wysiwyg.js"></script>
 
-		<!--<script type="text/javascript" src="./mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script>-->
+
+		<!--	<script type="text/javascript" src="./mathjax/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script>-->
 		<!-- <script src='js/jquery-ui/ui/jquery-ui.js'></script> -->
-		<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js'></script>
+       
+			<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js'></script>
 			<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_HTMLorMML "></script>
+			<link href="css/font-awesome.min.css" type="text/css" rel="stylesheet"/>
+            <link href="css/bootstrap.css" type="text/css" rel="stylesheet"/>
+            <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+            <script src="js/bootstrap.min.js"></script>
+            <script src="js/jquery.hotkeys.js"></script>
+            <script src="js/bootstrap-wysiwyg.js"></script>
+
 			
 			
 
@@ -76,7 +155,7 @@ storekey = '$key';
 
 	<body onload="body_load()">
 		<div class="container" id="main-container">
-			<div class="col-md-12" id="title">
+			<div class="col-md-12" id="main-title">
 				Mathifold
 				<br/>
 				<div id="loading">
@@ -96,27 +175,37 @@ storekey = '$key';
 							</button>
 							<!--<button onclick="rerender()">
 							+rerender
-							</button>-->
+							</button>
 							<button onclick="newTextReference()" title = "Add a new reference to a word or phrase">
 								+teference
-							</button>
+							</button>-->
 							<button onclick="EquationReference();" title = "Add a reference link to an existing equation">
-								+eference
+								+eqntag
 							</button>
-							<button onclick="Export();" title = "Export document as Mathifold HTML">
-								&gt;export
+						<button onclick="FigureReference();" title = "Add a reference link to an existing equation">
+								+figtag
 							</button>
-							<button onclick="ExportPrint();" title = "Export document as Mathifold HTML">
-								&gt;print
-							</button>
-							<button onclick="Open();" title="Open existing Mathifold document">
+							
+							<button id="open-button" onclick="document.getElementById('upload').click(); $('#file-form').show(); $('#open-button').hide();" title="Open existing Mathifold document">
 								&gt;open
 							</button>
+                            <form id="file-form" style="display:none;" method="post" enctype="multipart/form-data">
+                            <input type="file" id="upload" name="upload"   />
+                            <span id="file-name"></span>
+                          <button onclick="Open();" >
+								open file
+							</button>
+                            </form>
 							<button onclick="Save();" title = "Save your document online.">
 								&gt;save
 							</button>
-
+<button onclick="ExportPrint();" title = "Export document as Mathifold HTML">
+								&gt;print
+							</button>
+                            
+                           
 						</div>
+                        
 
 					</div>
 
@@ -136,82 +225,81 @@ storekey = '$key';
 				<br />
 				<div class="col-md-9" id="editor-container">
 					<div id="toolbar">
-						
-						 
-						  <div class="btn-toolbar" data-role="editor-toolbar" data-target="#editor">
+                   
+<div class="btn-toolbar" data-role="editor-toolbar" data-target="#editor">
       <div class="btn-group">
-        <button class="btn dropdown-toggle" data-toggle="dropdown" title="Font"><i class="icon-font"></i><b class="caret"></b></button>
+        <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="" data-original-title="Font"><i class="fa fa-font glyphicon-font"></i><b class="caret"></b></a>
           <ul class="dropdown-menu">
-          </ul>
-        </div>
+          <li><a data-edit="fontName Serif" style="font-family:'Serif'">Serif</a></li><li><a data-edit="fontName Sans" style="font-family:'Sans'">Sans</a></li><li><a data-edit="fontName Arial" style="font-family:'Arial'">Arial</a></li><li><a data-edit="fontName Arial Black" style="font-family:'Arial Black'">Arial Black</a></li><li><a data-edit="fontName Courier" style="font-family:'Courier'">Courier</a></li><li><a data-edit="fontName Courier New" style="font-family:'Courier New'">Courier New</a></li><li><a data-edit="fontName Comic Sans MS" style="font-family:'Comic Sans MS'">Comic Sans MS</a></li><li><a data-edit="fontName Helvetica" style="font-family:'Helvetica'">Helvetica</a></li><li><a data-edit="fontName Impact" style="font-family:'Impact'">Impact</a></li><li><a data-edit="fontName Lucida Grande" style="font-family:'Lucida Grande'">Lucida Grande</a></li><li><a data-edit="fontName Lucida Sans" style="font-family:'Lucida Sans'">Lucida Sans</a></li><li><a data-edit="fontName Tahoma" style="font-family:'Tahoma'">Tahoma</a></li><li><a data-edit="fontName Times" style="font-family:'Times'">Times</a></li><li><a data-edit="fontName Times New Roman" style="font-family:'Times New Roman'">Times New Roman</a></li><li><a data-edit="fontName Verdana" style="font-family:'Verdana'">Verdana</a></li></ul>
+      </div>
       <div class="btn-group">
-        <button class="btn dropdown-toggle" data-toggle="dropdown" title="Font Size"><i class="icon-text-height"></i>&nbsp;<b class="caret"></b></button>
+        <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="" data-original-title="Font Size"><i class="fa fa-text-height"></i>&nbsp;<b class="caret"></b></a>
           <ul class="dropdown-menu">
-          <li><button  class="btn" data-edit="fontSize 5"><font size="5">Huge</font></button></li>
-          <li><button class="btn" data-edit="fontSize 3"><font size="3">Normal</font></button></li>
-          <li><button  class="btn" data-edit="fontSize 1"><font size="1">Small</font></button></li>
+          <li><a data-edit="fontSize 5"><font size="5">Huge</font></a></li>
+          <li><a data-edit="fontSize 3"><font size="3">Normal</font></a></li>
+          <li><a data-edit="fontSize 1"><font size="1">Small</font></a></li>
           </ul>
       </div>
       <div class="btn-group">
-        <button class="btn" data-edit="bold" title="Bold (Ctrl/Cmd+B)"><i class="icon-bold"></i></button>
-        <button class="btn" data-edit="italic" title="Italic (Ctrl/Cmd+I)"><i class="icon-italic"></i></button>
-        <button class="btn" data-edit="strikethrough" title="Strikethrough"><span style="text-shadow:none;text-decoration:line-through;">ABC</span></button>
-        <button class="btn" data-edit="underline" title="Underline (Ctrl/Cmd+U)"><span style="text-decoration:underline!important;">U</span></button>
+        <a class="btn btn-default" data-edit="bold" title="" data-original-title="Bold (Ctrl/Cmd+B)"><i class="fa fa-bold"></i></a>
+        <a class="btn btn-default" data-edit="italic" title="" data-original-title="Italic (Ctrl/Cmd+I)"><i class="fa fa-italic"></i></a>
+        <a class="btn btn-default" data-edit="underline" title="" data-original-title="Underline (Ctrl/Cmd+U)"><i class="fa fa-underline"></i></a>
       </div>
       <div class="btn-group">
-        <button class="btn" data-edit="insertunorderedlist" title="Bullet list"><span class="icon-list-alt"></span></button>
-        <button class="btn" data-edit="insertorderedlist" title="Number list"><span class="icon-list"></span></button>
-        <button class="btn" data-edit="outdent" title="Reduce indent (Shift+Tab)"><i class="icon-indent-left"></i></button>
-        <button class="btn" data-edit="indent" title="Indent (Tab)"><i class="icon-indent-right"></i></button>
+        <a class="btn btn-default" data-edit="insertunorderedlist" title="" data-original-title="Bullet list"><i class="fa fa-list"></i></a>
+        <a class="btn btn-default" data-edit="insertorderedlist" title="" data-original-title="Number list"><i class="fa fa-list-ol"></i></a>
+        <a class="btn btn-default" data-edit="outdent" title="" data-original-title="Reduce indent (Shift+Tab)"><i class="fa fa-indent"></i></a>
+        <a class="btn btn-default" data-edit="indent" title="" data-original-title="Indent (Tab)"><i class="fa fa-outdent"></i></a>
       </div>
       <div class="btn-group">
-        <button class="btn" data-edit="justifyleft" title="Align Left (Ctrl/Cmd+L)"><i class="icon-align-left"></i></button>
-        <button class="btn" data-edit="justifycenter" title="Center (Ctrl/Cmd+E)"><i class="icon-align-center"></i></button>
-        <button class="btn" data-edit="justifyright" title="Align Right (Ctrl/Cmd+R)"><i class="icon-align-right"></i></button>
-        <button class="btn" data-edit="justifyfull" title="Justify (Ctrl/Cmd+J)"><i class="icon-align-justify"></i></button>
+        <a class="btn btn-default" data-edit="justifyleft" title="" data-original-title="Align Left (Ctrl/Cmd+L)"><i class="fa fa-align-left"></i></a>
+        <a class="btn btn-default" data-edit="justifycenter" title="" data-original-title="Center (Ctrl/Cmd+E)"><i class="fa fa-align-center"></i></a>
+        <a class="btn btn-default" data-edit="justifyright" title="" data-original-title="Align Right (Ctrl/Cmd+R)"><i class="fa fa-align-right"></i></a>
+        <a class="btn btn-default" data-edit="justifyfull" title="" data-original-title="Justify (Ctrl/Cmd+J)"><i class="fa fa-align-justify"></i></a>
       </div>
       <div class="btn-group">
-		  <button class="btn dropdown-toggle" data-toggle="dropdown" title="Hyperlink"><i class="icon-link">lnk</i></button>
-		    <div class="dropdown-menu input-append">
-			    <input class="span2" placeholder="URL" type="text" data-edit="createLink"/>
-			    <button class="btn" type="button">Add</button>
+      <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="" data-original-title="Hyperlink"><i class="fa fa-link"></i></a>
+        <div class="dropdown-menu input-append">
+          <input class="span2" placeholder="URL" type="text" data-edit="createLink">
+          <button class="btn" type="button">Add</button>
         </div>
-        <button class="btn" data-edit="unlink" title="Remove Hyperlink"><i class="icon-cut">unlnk</i></button>
+        <a class="btn btn-default" data-edit="unlink" title="" data-original-title="Remove Hyperlink"><i class="fa fa-unlink"></i></a>
 
       </div>
-      
+
       <div class="btn-group">
-        <button class="btn" title="Insert picture (or just drag & drop)" id="pictureBtn"><i class="icon-picture"></i></button>
-        <input type="file" data-role="magic-overlay" data-target="#pictureBtn" data-edit="insertImage" />
+        <a class="btn btn-default" title="" id="pictureBtn" data-original-title="Insert picture (or just drag &amp; drop)"><i class="fa fa-picture-o"></i></a>
+        <input type="file" data-role="magic-overlay" data-target="#pictureBtn" data-edit="insertImage" style="opacity: 0; position: absolute; top: 0px; left: 0px; width: 37px; height: 30px;">
       </div>
       <div class="btn-group">
-        <button class="btn" data-edit="undo" title="Undo (Ctrl/Cmd+Z)"><i class="icon-chevron-left"></i></button>
-        <button class="btn" data-edit="redo" title="Redo (Ctrl/Cmd+Y)"><i class="icon-chevron-right"></i></button>
+        <a class="btn btn-default" data-edit="undo" title="" data-original-title="Undo (Ctrl/Cmd+Z)"><i class="fa fa-rotate-left"></i></a>
+        <a class="btn btn-default" data-edit="redo" title="" data-original-title="Redo (Ctrl/Cmd+Y)"><i class="fa fa-rotate-right"></i></a>
       </div>
      
     </div>
 						
-						
-						 
-						 
-						 
-						 
-					</div>
-					<!--end of div#toolbar-->
+	</div>
 					<div name="editor" id="editor" contenteditable="true" onmouseout="getSelectionHtml()"  >
 						<?php
-						if ($html_code != null) {
-							echo $html_code;
-						}
-						?>
-
+						if ($html_data != null) {
+							echo $html_data;
+						}else 
+						echo '
 						<div id="clickme">
 							Click here to begin
-						</div>
+						</div>';
+						
+						?>
+
+						
 
 					</div>
 					<div id='statusbox'></div>
+                     
 					<div class = 'qs'>
+                    <a onclick="autoRestore();" id="restore" style="display:none;">
+								Restore Auto-Saved document&dagger; 
+							</a>
 						<a href="./Mathifold.pdf" target="_blank" >Quick Start Guide ↗</a> &nbsp;&nbsp;&nbsp;<a href="./asciimath.html" target="_blank" >ASCIIMathML Examples ↗</a>
 						<br/>
 						<br/>
@@ -470,41 +558,11 @@ storekey = '$key';
 			<!--<button id="submitinput" value="Done" onclick="storeFolds()">Done</button>-->
 		</div>
 		
-		
-		<script>
-  $(function(){
-    function initToolbarBootstrapBindings() {
-      var fonts = ['Serif', 'Sans', 'Arial', 'Arial Black', 'Courier', 
-            'Courier New', 'Comic Sans MS', 'Helvetica', 'Impact', 'Lucida Grande', 'Lucida Sans', 'Tahoma', 'Times',
-            'Times New Roman', 'Verdana'],
-            fontTarget = $('[title=Font]').siblings('.dropdown-menu');
-      $.each(fonts, function (idx, fontName) {
-          fontTarget.append($('<li><a data-edit="fontName ' + fontName +'" style="font-family:\''+ fontName +'\'">'+fontName + '</a></li>'));
-      });
-      $('a[title]').tooltip({container:'body'});
-    	$('.dropdown-menu input').click(function() {return false;})
-		    .change(function () {$(this).parent('.dropdown-menu').siblings('.dropdown-toggle').dropdown('toggle');})
-        .keydown('esc', function () {this.value='';$(this).change();});
+        
+        <script type="text/javascript">
+	$('#editor').wysiwyg();
+	
+		</script>
 
-      $('[data-role=magic-overlay]').each(function () { 
-        var overlay = $(this), target = $(overlay.data('target')); 
-        overlay.css('opacity', 0).css('position', 'absolute').offset(target.offset()).width(target.outerWidth()).height(target.outerHeight());
-      });
-     
-	};
-	function showErrorAlert (reason, detail) {
-		var msg='';
-		if (reason==='unsupported-file-type') { msg = "Unsupported format " +detail; }
-		else {
-			console.log("error uploading file", reason, detail);
-		}
-		$('<div class="alert"> <button type="button" class="close" data-dismiss="alert">&times;</button>'+ 
-		 '<strong>File upload error</strong> '+msg+' </div>').prependTo('#alerts');
-	};
-    initToolbarBootstrapBindings();  
-	$('#editor').wysiwyg({ fileUploadError: showErrorAlert} );
-    window.prettyPrint && prettyPrint();
-  });
-</script>
 	</body>
 </html>
