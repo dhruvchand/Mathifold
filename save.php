@@ -44,7 +44,7 @@ for ($k = 0; $k < $textreferencecount; $k++) {
 <head>
 
 <title><?php echo $title; ?></title>
-
+<h1><?php echo $title; ?></h1>
 <!--
 
 <link rel='stylesheet' href='js/jquery-ui/themes/base/jquery-ui.css' />
@@ -87,8 +87,9 @@ for ($k = 0; $k < $textreferencecount; $k++) {
 		margin: 20px;
 		margin-top: 40px;
 	}
-	.reference,.text-reference {
+	.reference,.text-reference,.equation-reference,.figure-reference {
 		cursor: pointer;
+		color : #009;
 	}
 	.up, .rhs, .down, .equation-step {
 		padding: 5px;
@@ -105,6 +106,20 @@ for ($k = 0; $k < $textreferencecount; $k++) {
 	}
 	.figure img{
 		max-width:50%;
+	}
+	
+	#reference-container
+	{
+		height:300px;
+		width:28%;
+		position:fixed;
+		right:0px;
+		bottom:0px;
+		border:none;
+		box-shadow:0px 0px 4px rgba(0,0,0,0.5);
+		padding:4px;
+		border-radius:3px;
+		resize:both;
 	}
 </style>
 
@@ -165,11 +180,7 @@ script.type = "text/javascript";
 script.text = "MathJax.Hub.Queue(['Typeset',MathJax.Hub]);$('.up,.down').show();$('.buttonup,.buttondown').hide(); "
 newIframe.contentWindow.document.body.appendChild(script);
 
-//  $( document ).tooltip({
-// open: function( event, ui ) {MathJax.Hub.Queue(['Typeset',MathJax.Hub]);MathJax.Hub.Queue(reference);}
-//});
 
-$('#dialog').dialog();
 
 MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
 MathJax.Hub.Queue(reference);
@@ -250,8 +261,6 @@ $('.mi, .mo, .msub, .msubsup, .mover, .msup').click ( function(event) {
 if($(this).data ( 'reference' )!==undefined)
 {
 event.stopPropagation();
-$( '#reference-container' ).dialog('open');
-//alert($(this).data( 'reference' ));
 $('#reference-container').scrollTo('#'+$(this).data( 'reference' ));
 }
 
@@ -260,42 +269,24 @@ $('#reference-container').scrollTo('#'+$(this).data( 'reference' ));
 $('.text-reference').click ( function() {
 if($(this).attr ( 'title' )!=='')
 {
-$( '#reference-container' ).dialog('open');
-//alert($(this).data( 'reference' ));
 $('#reference-container').scrollTo('#'+$(this).data('reference' ));
 }
 
 });
 
 $('.equation-reference').click ( function() {
-$( '#reference-container' ).dialog('open');
-//	alert('#'+'equation-'+$(this).data( 'pointsto'));
 $('#reference-container').scrollTo('#'+'equation-'+$(this).data( 'pointsto'));
-// alert('#'+'equation-'+$(this).data('pointsto'));
-
 });
 
 
 $('.figure-reference').click ( function() {
-$( '#reference-container' ).dialog('open');
-//	alert('#'+'figure-'+$(this).data( 'pointsto'));
 $('#reference-container').scrollTo('#'+'figure-'+$(this).data( 'pointsto'));
-// alert('#'+'figure-'+$(this).data('pointsto'));
-
 });
 
 }
 </script>
 
-<script>
-$(function() {
-$( '#reference-container' ).dialog({
-autoOpen:false,
-width:'auto',
-title: 'Reference'
-});
-});
-</script>
+
 
 ";
 
