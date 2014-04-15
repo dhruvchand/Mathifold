@@ -346,6 +346,52 @@ function refreshEquationNumbers() {
 
 }
 
+
+function refreshFigureNumbers() {
+	//delete empty equations first
+	
+
+
+	$.each($('.figure'), function(index, obj) {
+
+		var figno = $(obj).attr('id');
+		figno = figno.replace("figure-", "");
+		if ((Number(index) + 1) != figno) {
+			alert('dsfsd');
+			figureNo--;
+			//swap array objects
+			var theOtherIndex = (Number(index) + 1);			
+			//Swap equation references
+
+			$.each($('[data-figpointsto=' + figno + ']'), function(index, obj) {
+				obj.dataset.pointsto = 'temp';
+				$(obj).html('figure ' + theOtherIndex);
+			});
+
+			$.each($('[data-figpointsto=' + theOtherIndex + ']'), function(index, obj) {
+				obj.dataset.pointsto = figno;
+				$(obj).html('figure ' + figno);
+			});
+
+			$.each($('[data-figpointsto=temp]'), function(index, obj) {
+				obj.dataset.pointsto = theOtherIndex;
+			});
+
+			//swap equation IDs
+			$(obj).attr('id', "temp");
+			$(obj).children('.fig-id').html('Figure ' + theOtherIndex);
+			
+			$('#figure-' + (Number(index) + 1)).attr('id', 'figure-' + figno);
+				$('#figure-' + (Number(index) + 1)).children('.fig-id').html('Figure ' + figno);
+			$(obj).attr('id', 'figure-' + theOtherIndex);
+			
+
+			
+		}
+	});
+
+}
+
 ///////////////////////Referencing Logic////////////////////////////
 
 function genref()
@@ -374,7 +420,7 @@ function FigureReference() {
 	var fig = prompt("Enter the figure number.");
 	if(fig!=null){
 	var div = document.createElement("span");
-	div.dataset.pointsto = fig;
+	div.dataset.figpointsto = fig;
 	div.className = "figure-reference";
 	div.innerHTML = " figure " + fig;
 	range.deleteContents();

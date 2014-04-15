@@ -280,7 +280,7 @@ $('#reference-container').scrollTo('#'+'equation-'+$(this).data( 'pointsto'));
 
 
 $('.figure-reference').click ( function() {
-$('#reference-container').scrollTo('#'+'figure-'+$(this).data( 'pointsto'));
+$('#reference-container').scrollTo('#'+'figure-'+$(this).data( 'figpointsto'));
 });
 
 }

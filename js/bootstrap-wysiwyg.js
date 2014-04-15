@@ -211,13 +211,15 @@ range.deleteContents();
 		var image = document.createElement('img');
 		var div = document.createElement('div');
 		var span = document.createElement('span');
-		
-		span.innerHTML = "Figure "+figureNo + ": " + prompt('Enter a caption for the figure');
+		span.className = 'fig-id';
+		var span2 = document.createElement('span');
+		span.innerHTML = "Figure "+figureNo ;
+		span2.innerHTML =  ": " + prompt('Enter a caption for the figure');
 		div.id = 'figure-'+figureNo;
 		div.appendChild(image);
 		div.appendChild(document.createElement('br'));
 		div.appendChild(span);
-		
+		div.appendChild(span2);
 		div.className='figure';
 		image.src = img;
 		range.insertNode(document.createElement('br'));
@@ -226,6 +228,7 @@ range.deleteContents();
 range.insertNode(document.createElement('br'));
 		
 		figureNo++;
+		refreshFigureNumbers();
 	}
 	else
 	{
